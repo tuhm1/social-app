@@ -1,14 +1,32 @@
-const express = require('express');
-const next = require('next');
-const morgan = require('morgan');
-const expressHandler = express();
-const nextHandler = next({});
+const passport = require('passport');
 
 (async () => {
-    await nextHandler.prepare();
-    expressHandler
-        .use(morgan('dev'))
-        .get('/api', (req, res) => res.json({ message: 'Hello' }))
-        .use((req, res) => nextHandler.getRequestHandler()(req, res))
-        .listen(3000);
+    const Express = require('express');
+    const express = Express();
+
+    const mongoose = require('mongoose');
+    mongoose.set('debug', true);
+    await mongoose.connect(process.env.MONGODB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
+    express.set('dbContext', { ...require('./db/user') });
+
+    express
+        .use(require('morgan')('dev'))
+        .use(Express.json())
+        .use(require('express-session')({
+            secret: process.env.SESSION_SECRET,
+            resave: false,
+            saveUninitialized: true
+        }))
+        .use(passport.initialize())
+        .use(passport.session())
+        .use('/api/auth', require('./api/auth'));
+
+    const next = require('next')({ dev: process.env !== 'production' });
+    await next.prepare();
+    express.use((req, res) => next.getRequestHandler()(req, res))
+
+    express.listen(3000);
 })();
