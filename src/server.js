@@ -22,11 +22,13 @@ const passport = require('passport');
         }))
         .use(passport.initialize())
         .use(passport.session())
-        .use('/api/auth', require('./api/auth'));
-
+        .use('/api/auth', require('./api/auth'))
+        .use('/api/user', require('./api/user'))
     const next = require('next')({ dev: process.env !== 'production' });
     await next.prepare();
     express.use((req, res) => next.getRequestHandler()(req, res))
 
-    express.listen(3000);
+    express.listen(3000, () => {
+        console.log('Server listening in port 3000...');
+    });
 })();

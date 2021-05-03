@@ -38,7 +38,7 @@ const RegisterForm = ({ onDone }) => {
         <Form.Input name='lastname' label='Last name' required />
         <Form.Input name='username' label='Username' required />
         <Form.Input name='password' label='Password' type='password' required />
-        <Button type='submit' size='large' fluid>Register</Button>
+        <Button type='submit' size='large' fluid primary>Register</Button>
         <Divider />
         <GoogleLogin onDone={onDone} />
     </Form>

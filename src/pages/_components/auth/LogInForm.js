@@ -32,7 +32,7 @@ const LogInForm = ({ onDone }) => {
         }
         <Form.Input name='username' label='Username' placeholder='Username' />
         <Form.Input name='password' label='Password' type='password' placeholder='Password' />
-        <Button type='submit' size='large' fluid>Log In</Button>
+        <Button type='submit' size='large' fluid primary>Log In</Button>
         <Divider />
         <GoogleLogin onDone={onDone} />
     </Form>

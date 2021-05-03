@@ -3,10 +3,10 @@ import {
     Header, Image, Menu,
     Segment, Statistic, Icon
 } from "semantic-ui-react";
-import LoginModal from '../../components/auth/LogInModal';
+import LoginModal from '../../_components/auth/LogInModal';
+import EditModal from './_edit';
 
-export default function Me({ user, currentUserId }) {
-    console.log(currentUserId);
+export default function Profile({ user, currentUserId }) {
     return <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Menu inverted style={{ position: 'sticky', top: 0, zIndex: 2 }}>
             {!currentUserId && <LoginModal trigger={<Menu.Item as={Button} icon='user' />} />}
@@ -18,11 +18,11 @@ export default function Me({ user, currentUserId }) {
             }}>
                 {user
                     ? <>
-                        <Image circular size='medium' src={user.avatar || 'https://www.watsonmartin.com/wp-content/uploads/2016/03/default-profile-picture.jpg'} />
+                        <Image circular size='medium' src={user.avatar || '/default-avatar.svg'} />
                         <Header as='h1' icon>
                             {`${user.firstName} ${user.lastName}`}
                             <Header.Subheader style={{ fontSize: 'large' }}>
-                                {user.bio || 'Hello World!!!'}
+                                {user.bio}
                             </Header.Subheader>
                         </Header>
                         <div>
@@ -30,14 +30,11 @@ export default function Me({ user, currentUserId }) {
                             <Statistic value='456' label='posts' />
                         </div>
                         {currentUserId !== user._id
-                            ? <div>
+                            ? <div style={{ position: 'sticky', bottom: 0 }}>
                                 <Button size='large'>Follow</Button>
                                 <Button size='large'>Message</Button>
                             </div>
-                            : <Button size='large'>
-                                <Icon name='edit' />
-                                Edit
-                            </Button>
+                            : <EditModal user={user} trigger={<Button icon='edit' content='Edit' />} />
                         }
                     </>
                     : <Header as='h1' icon>

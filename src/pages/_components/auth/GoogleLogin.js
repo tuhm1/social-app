@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import GoogleLoginCore from 'react-google-login';
-import { Button, Message } from 'semantic-ui-react';
+import { Button, Icon, Message } from 'semantic-ui-react';
 import { useRouter } from 'next/router';
 
 const GoogleLogin = ({ onDone }) => {
@@ -27,15 +27,16 @@ const GoogleLogin = ({ onDone }) => {
             </Message>
         }
         <GoogleLoginCore
-            clientId="673272954593-23ub07tleruocinbqur2k26nbitgdu8i.apps.googleusercontent.com"
+            clientId={process.env.GOOGLE_CLIENT_ID}
             onSuccess={onGoogleLoggedIn} cookiePolicy={'single_host_origin'}
             render={({ onClick, disabled }) =>
                 <Button
-                    onClick={onClick} disabled={disabled} icon='google'
+                    onClick={onClick} disabled={disabled}
                     loading={response.state === 'loading'} fluid size='large'
-                >
-                    Log In with Google
-                </Button>
+                    color='red'
+                    icon='google'
+                    content='Log In with Google'
+                />
             }
         />
     </>
