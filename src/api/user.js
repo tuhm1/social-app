@@ -6,7 +6,9 @@ const { User } = require('../db/user');
 const multer = require('multer');
 const CloudinaryStorage = require('./helpers/MulterCloudinaryStorage');
 const upload = multer({
-    storage: new CloudinaryStorage({ folder: 'dev' })
+    storage: new CloudinaryStorage({
+        folder: process.env.CLOUDINARY_FOLDER || 'dev'
+    })
 }).single('new_avatar');
 
 app

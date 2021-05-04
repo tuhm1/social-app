@@ -3,6 +3,7 @@ const mongooseDelete = require('mongoose-delete');
 const schema = new mongoose.Schema({
     text: String,
     files: [{
+        publicId: { type: String, required: true, unique: true }, 
         url: { type: String, required: true },
         resourceType: { type: String, required: true }
     }],

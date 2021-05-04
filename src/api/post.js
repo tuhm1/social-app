@@ -7,7 +7,7 @@ const multer = require('multer');
 const CloudinaryStorage = require('./helpers/MulterCloudinaryStorage');
 const upload = multer({
     storage: new CloudinaryStorage({
-        folder: 'dev',
+        folder: process.env.CLOUDINARY_FOLDER || 'dev',
         resource_type: 'auto'
     })
 }).array('files');
@@ -23,6 +23,7 @@ app
                     userId: req.user,
                     text: req.body.text,
                     files: req.files?.map(f => ({
+                        publicId: f.public_id,
                         url: f.secure_url,
                         resourceType: f.resource_type
                     }))

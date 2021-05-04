@@ -52,8 +52,8 @@ function PostCreateForm({ onDone }) {
     return <Form
         onSubmit={onSubmit}
         success={response.status === 'success'}
-        loading={response.state === 'loading'}
-        error={response.state === 'error'}
+        loading={response.status === 'loading'}
+        error={response.status === 'error'}
     >
         {response.status === 'error'
             && <Message

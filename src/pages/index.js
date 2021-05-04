@@ -1,14 +1,12 @@
 import React from 'react';
 import Head from 'next/head';
 import { Container, Menu, Button, Image, Divider, Card, Header, Segment } from 'semantic-ui-react';
-import Slider from 'react-slick';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import Masonry from 'react-masonry-css';
 import styles from '../../styles/masonry.module.css';
-
+import Link from 'next/link';
 import PostCreateModal from './_components/post/PostCreateModal';
 import LoginModal from './_components/auth/LogInModal';
+import GalleryWidget from './_components/GalleryWidget';
 
 export default function Home({ currentUserId, posts }) {
   return (
@@ -25,59 +23,37 @@ export default function Home({ currentUserId, posts }) {
           && <PostCreateModal trigger={<Menu.Item as={Button} icon='plus' position='right' />} />
         }
       </Menu>
-      {/*<Container style={{ maxWidth: '700px!important' }}>
-        {posts.map(p => {
-          const user = p.user[0];
-          return <React.Fragment key={p._id}>
-            <div>
-              <Image
-                avatar
-                src={user.avatar || '/default-avatar.svg'}
-                size='tiny'
-              />
-              <a style={{ fontSize: 'x-large' }}>{`${user.firstName} ${user.lastName}`}</a>
-              <p style={{ fontSize: 'medium' }}>{p.text}</p>
-              <Slider dots autoplay arrows={false} accessibility adaptiveHeight>
-                {p.files?.map(f =>
-                  f.resourceType === 'image'
-                    ? <img src={f.url} key={f.url} />
-                    : <video src={f.url} controls autoPlay key={f.url} />
-                )}
-              </Slider>
-            </div>
-            <Divider />
-          </React.Fragment>
-        })}
-      </Container>*/}
       <Container>
-        <Masonry breakpointCols={{ default: 3, 1000: 2, 600: 1 }}
+        <Masonry breakpointCols={{ default: 2, 600: 1 }}
           className={styles['masonry-grid']}
           columnClassName={styles['masonry-grid_column']}
         >
           {posts.map(({ _id, text, files, user }) =>
-            <Segment key={_id} raised>
+            <Link href={`/posts/${_id}`} key={_id}>
               <div>
-                <Image src={user.avatar || '/default-avatar.svg'} avatar />
-                <a style={{ fontSize: 'large' }}>
-                  {`${user.firstName} ${user.lastName}`}
-                </a>
+                <Segment>
+                  <div>
+                    <Image src={user.avatar || '/default-avatar.svg'} avatar style={{ height: '3em', width: '3em' }} />
+                    <a style={{ fontSize: 'large' }}>
+                      {`${user.firstName} ${user.lastName}`}
+                    </a>
+                  </div>
+                  <p style={{ fontSize: 'large' }}>
+                    {text.slice(0, 200)}
+                    {text.length > 200
+                      && <>...
+                      <Link href={`/posts/${_id}`}>
+                          <a>More</a>
+                        </Link>
+                      </>
+                    }
+                  </p>
+                  {files?.length > 0 && <GalleryWidget files={files} />}
+                  <Button icon='like' />
+                  <Button icon='comment' />
+                </Segment>
               </div>
-              <p style={{ fontSize: 'large' }}>
-                {text.slice(0, 200)}
-                {text.length > 200
-                  && <>... <a>More</a></>
-                }
-              </p>
-              <Slider dots autoplay arrows={false}>
-                {files?.map(f =>
-                  f.resourceType === 'image'
-                    ? <img src={f.url} key={f.url} />
-                    : <video src={f.url} controls autoPlay key={f.url} />
-                )}
-              </Slider>
-              <Button icon='like' />
-              <Button icon='comment' />
-            </Segment>
+            </Link>
           )}
         </Masonry>
       </Container>
@@ -97,4 +73,4 @@ export async function getServerSideProps({ req }) {
       posts: JSON.parse(JSON.stringify(posts))
     }
   };
-};
+}
