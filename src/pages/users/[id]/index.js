@@ -3,13 +3,13 @@ import {
     Header, Image, Menu,
     Segment, Statistic, Icon
 } from "semantic-ui-react";
-import LoginModal from '../../_components/auth/LogInModal';
-import EditModal from './_edit';
+import AuthModal from '../../_components/AuthModal';
+import EditModal from '../../_components/users/UserEditModal';
 
 export default function Profile({ user, currentUserId }) {
     return <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Menu inverted style={{ position: 'sticky', top: 0, zIndex: 2 }}>
-            {!currentUserId && <LoginModal trigger={<Menu.Item as={Button} icon='user' />} />}
+            {!currentUserId && <AuthModal trigger={<Menu.Item as={Button} icon='user' />} />}
         </Menu>
         <Container style={{ flexGrow: 1 }}>
             <Segment style={{

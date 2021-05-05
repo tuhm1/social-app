@@ -9,7 +9,7 @@ import {
     Segment
 } from "semantic-ui-react";
 import { useRouter } from 'next/router';
-import InputFile from '../../_components/FilePicker';
+import InputFile from '../FilePicker';
 
 export default function EditModal({ user, trigger }) {
     const [isOpen, setIsOpen] = useState(false);
