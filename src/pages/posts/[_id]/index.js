@@ -12,7 +12,7 @@ export default function Post({ post }) {
     return <div style={{ maxWidth: '700px', margin: 'auto' }}>
         <div>
             <Image src={user.avatar || '/default-avatar.svg'} avatar style={{ height: '3em', width: '3em' }} />
-            <Link href={`/user/${user._id}`}>
+            <Link href={`/users/${user._id}`}>
                 <a style={{ fontSize: 'large' }}>
                     {`${user.firstName} ${user.lastName}`}
                 </a>

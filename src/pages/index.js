@@ -34,9 +34,11 @@ export default function Home({ currentUserId, posts }) {
                 <Segment>
                   <div>
                     <Image src={user.avatar || '/default-avatar.svg'} avatar style={{ height: '3em', width: '3em' }} />
-                    <a style={{ fontSize: 'large' }}>
-                      {`${user.firstName} ${user.lastName}`}
-                    </a>
+                    <Link href={`/users/${user._id}`}>
+                      <a style={{ fontSize: 'large' }}>
+                        {`${user.firstName} ${user.lastName}`}
+                      </a>
+                    </Link>
                   </div>
                   <p style={{ fontSize: 'large' }}>
                     {text.slice(0, 200)}
