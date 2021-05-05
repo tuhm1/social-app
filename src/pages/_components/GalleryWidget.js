@@ -20,7 +20,7 @@ const defaultOptions = {
 export default function GalleryWidget({ files, options = {} }) {
     const ref = useRef(null);
     const [_cloudinary, setCloudinary] = useState();
-    let [containerId] = useState(() => `widget-${galleryWidgetCount++}`);
+    let containerId = `widget-${galleryWidgetCount++}`;
     useEffect(() => {
         if (ref && _cloudinary) {
             const widget = _cloudinary.galleryWidget({
