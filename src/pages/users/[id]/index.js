@@ -4,7 +4,7 @@ import {
     Segment, Statistic, Icon
 } from "semantic-ui-react";
 import AuthModal from '../../_components/AuthModal';
-import EditModal from './_edit';
+import EditModal from '../../_components/users/UserEditModal';
 
 export default function Profile({ user, currentUserId }) {
     return <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
