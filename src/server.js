@@ -12,7 +12,8 @@ const passport = require('passport');
     });
     express.set('dbContext', { 
         ...require('./db/user'),
-        Post: require('./db/post')
+        Post: require('./db/post'),
+        Like: require('./db/like')
     });
 
     express
@@ -28,6 +29,7 @@ const passport = require('passport');
         .use('/api/auth', require('./api/auth'))
         .use('/api/user', require('./api/users'))
         .use('/api/post', require('./api/posts'))
+        .use('/api/likes', require('./api/likes'))
     const next = require('next')({ dev: process.env !== 'production' });
     await next.prepare();
     express.use((req, res) => next.getRequestHandler()(req, res))
