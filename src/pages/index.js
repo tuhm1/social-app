@@ -5,7 +5,7 @@ import Masonry from 'react-masonry-css';
 import styles from '../../styles/masonry.module.css';
 import Link from 'next/link';
 import PostCreateModal from './_components/post/PostCreateModal';
-import LoginModal from './_components/auth/LogInModal';
+import AuthModal from './_components/AuthModal';
 import GalleryWidget from './_components/GalleryWidget';
 
 export default function Home({ currentUserId, posts }) {
@@ -17,7 +17,7 @@ export default function Home({ currentUserId, posts }) {
       </Head>
       <Menu inverted style={{ position: 'sticky', top: 0, zIndex: 2 }}>
         {!currentUserId
-          && <LoginModal trigger={<Menu.Item as={Button} icon='user' position='right' />} />
+          && <AuthModal trigger={<Menu.Item as={Button} icon='user' position='right' />} />
         }
         {currentUserId
           && <PostCreateModal trigger={<Menu.Item as={Button} icon='plus' position='right' />} />
