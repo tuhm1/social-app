@@ -2,11 +2,14 @@ import React from 'react';
 import Head from 'next/head';
 import { Container, Menu, Button, Image, Divider, Card, Header, Segment } from 'semantic-ui-react';
 import Masonry from 'react-masonry-css';
-import styles from '../../styles/masonry.module.css';
+import masonryCss from '../../styles/masonry.module.css';
 import Link from 'next/link';
 import PostCreateModal from './_components/posts/PostCreateModal';
 import AuthModal from './_components/AuthModal';
 import GalleryWidget from './_components/GalleryWidget';
+import css from '../../styles/Home.module.css';
+
+const breakpointCols = { default: 3, 800: 1 };
 
 export default function Home({ currentUserId, posts }) {
   return (
@@ -24,38 +27,37 @@ export default function Home({ currentUserId, posts }) {
         }
       </Menu>
       <Container>
-        <Masonry breakpointCols={{ default: 2, 600: 1 }}
-          className={styles['masonry-grid']}
-          columnClassName={styles['masonry-grid_column']}
+        <Masonry breakpointCols={breakpointCols}
+          className={masonryCss['masonry-grid']}
+          columnClassName={masonryCss['masonry-grid_column']}
         >
           {posts.map(({ _id, text, files, user }) =>
-            <Link href={`/posts/${_id}`} key={_id}>
+            <div key={_id} className={'ui segment ' + css.post}>
+              <Link href={`/posts/${_id}`}>
+                <a className={css.stretchedLink} />
+              </Link>
               <div>
-                <Segment>
-                  <div>
-                    <Image src={user.avatar || '/default-avatar.svg'} avatar style={{ height: '3em', width: '3em' }} />
-                    <Link href={`/users/${user._id}`}>
-                      <a style={{ fontSize: 'large' }}>
-                        {`${user.firstName} ${user.lastName}`}
-                      </a>
-                    </Link>
-                  </div>
-                  <p style={{ fontSize: 'large' }}>
-                    {text.slice(0, 200)}
-                    {text.length > 200
-                      && <>...
-                      <Link href={`/posts/${_id}`}>
-                          <a>More</a>
-                        </Link>
-                      </>
-                    }
-                  </p>
-                  {files?.length > 0 && <GalleryWidget files={files} />}
-                  <Button icon='like' />
-                  <Button icon='comment' />
-                </Segment>
+                <Image src={user.avatar || '/default-avatar.svg'} avatar className={css.avatar} />
+                <Link href={`/users/${user._id}`}>
+                  <a className={css.username}>
+                    {`${user.firstName} ${user.lastName}`}
+                  </a>
+                </Link>
               </div>
-            </Link>
+              <p className={css.text}>
+                {text.slice(0, 200)}
+                {text.length > 200
+                  && <>...
+                      <Link href={`/posts/${_id}`}>
+                      <a>More</a>
+                    </Link>
+                  </>
+                }
+              </p>
+              {files?.length > 0 && <GalleryWidget files={files} />}
+              <Button icon='like' className={css.button} />
+              <Button icon='comment' className={css.button} />
+            </div>
           )}
         </Masonry>
       </Container>
