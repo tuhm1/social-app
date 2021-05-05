@@ -15,6 +15,7 @@ const defaultOptions = {
     videoProps: {
         controls: 'all'
     },
+    aspectRatio: '16:9'
 };
 
 export default function GalleryWidget({ files, options = {} }) {
