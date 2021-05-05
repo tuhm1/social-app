@@ -4,7 +4,7 @@ import { Container, Menu, Button, Image, Divider, Card, Header, Segment } from '
 import Masonry from 'react-masonry-css';
 import styles from '../../styles/masonry.module.css';
 import Link from 'next/link';
-import PostCreateModal from './_components/post/PostCreateModal';
+import PostCreateModal from './_components/posts/PostCreateModal';
 import AuthModal from './_components/AuthModal';
 import GalleryWidget from './_components/GalleryWidget';
 
