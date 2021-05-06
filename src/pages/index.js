@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import { Container, Menu, Button, Image } from 'semantic-ui-react';
 import Masonry from 'react-masonry-css';
-import masonryCss from '../../styles/masonry.module.css';
+import masonryCss from '../styles/masonry.module.css';
 import Link from 'next/link';
-import PostCreateModal from './_components/posts/PostCreateModal';
-import AuthModal from './_components/AuthModal';
-import GalleryWidget from './_components/GalleryWidget';
-import css from '../../styles/Home.module.css';
+import PostCreateModal from '../components/posts/PostCreateModal';
+import AuthModal from '../components/AuthModal';
+import GalleryWidget from '../components/GalleryWidget';
+import css from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 

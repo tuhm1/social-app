@@ -2,7 +2,7 @@ import { Container, Image, Button, Segment, Header, Icon } from "semantic-ui-rea
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import mongoose from "mongoose";
-import GalleryWidget from '../../_components/GalleryWidget';
+import GalleryWidget from '../../components/GalleryWidget';
 
 export default function Post({ post }) {
     if (!post) {
