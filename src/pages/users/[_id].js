@@ -3,8 +3,8 @@ import {
     Header, Image, Menu,
     Segment, Statistic, Icon
 } from "semantic-ui-react";
-import AuthModal from '../../_components/AuthModal';
-import EditModal from '../../_components/users/UserEditModal';
+import AuthModal from '../../components/AuthModal';
+import EditModal from '../../components/users/UserEditModal';
 
 export default function Profile({ user, currentUserId }) {
     return <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -50,9 +50,9 @@ export default function Profile({ user, currentUserId }) {
 };
 
 export async function getServerSideProps({ req, params }) {
-    const id = params.id;
+    const _id = params._id;
     const { User } = req.app.get('dbContext');
-    let user = await User.findById(id).lean();
+    let user = await User.findById(_id).lean();
     if (!user) {
         return { props: { user: null } };
     }

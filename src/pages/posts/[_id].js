@@ -5,7 +5,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import mongoose from "mongoose";
-import GalleryWidget from '../../_components/GalleryWidget';
+import GalleryWidget from '../../components/GalleryWidget';
 
 export async function getServerSideProps({ req, params: { _id } }) {
     const { Post } = req.app.get('dbContext');

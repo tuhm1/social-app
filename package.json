@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon -r dotenv/config src/server.js",
+    "dev": "nodemon -r dotenv/config src/index.js",
     "prestart": "next build",
-    "start": "node -r dotenv/config src/server.js"
+    "start": "node -r dotenv/config src/index.js"
   },
   "dependencies": {
     "axios": "^0.21.1",
