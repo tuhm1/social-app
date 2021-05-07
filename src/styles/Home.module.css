@@ -15,7 +15,8 @@
 .text{
   font-size: large;
 }
-.button {
+.buttons {
+  margin-top: 0.25em;
   position: relative;
 }
 .avatar {
@@ -24,5 +25,8 @@
 }
 .username {
   font-size: large;
+  position: relative;
+}
+.carousel {
   position: relative;
 }

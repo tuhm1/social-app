@@ -5,7 +5,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import mongoose from "mongoose";
-import GalleryWidget from '../../components/GalleryWidget';
+import Carousel from '../../components/Carousel';
 
 export async function getServerSideProps({ req, params: { _id } }) {
     const { Post } = req.app.get('dbContext');
@@ -47,7 +47,7 @@ export default function Post({ post, currentUserId }) {
         <p style={{ fontSize: 'large' }}>
             {text}
         </p>
-        {files?.length > 0 && <GalleryWidget files={files} />}
+        {files?.length > 0 && <Carousel files={files} />}
         <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
     </div>
 }

@@ -23,7 +23,6 @@ app
                     userId: req.user,
                     text: req.body.text,
                     files: req.files?.map(f => ({
-                        publicId: f.public_id,
                         url: f.secure_url,
                         resourceType: f.resource_type
                     }))

@@ -6,11 +6,10 @@ import masonryCss from '../styles/masonry.module.css';
 import Link from 'next/link';
 import PostCreateModal from '../components/posts/PostCreateModal';
 import AuthModal from '../components/AuthModal';
-import GalleryWidget from '../components/GalleryWidget';
 import css from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-
+import Carousel from '../components/Carousel';
 export async function getServerSideProps({ req }) {
   const { Post } = req.app.get('dbContext');
   const posts = await Post.aggregate([
@@ -77,9 +76,11 @@ export default function Home({ currentUserId, posts }) {
                   </>
                 }
               </p>
-              {files?.length > 0 && <GalleryWidget files={files} />}
-              <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
-              <Button icon='comment' className={css.button} />
+              {files?.length > 0 && <Carousel files={files} className={css.carousel} />}
+              <div className={css.buttons}>
+                <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
+                <Button icon='comment' />
+              </div>
             </div>
           )}
         </Masonry>
@@ -126,6 +127,5 @@ function LikeButton({ postId, likes, currentUserId }) {
     content={likes.length}
     icon='like'
     loading={response.status === 'loading'}
-    className={css.button}
   />
 }
