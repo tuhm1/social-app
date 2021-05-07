@@ -31,7 +31,7 @@ export async function getServerSideProps({ req }) {
   };
 }
 
-const breakpointCols = { default: 3, 800: 1 };
+const breakpointCols = { default: 2, 800: 1 };
 
 export default function Home({ currentUserId, posts }) {
   return (
