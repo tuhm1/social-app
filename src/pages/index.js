@@ -72,7 +72,6 @@ export default function Home({ currentUserId, posts }) {
 }
 
 function LikeButton({ postId, likes, currentUserId }) {
-  const router = useRouter();
   const [response, setResponse] = useState({ status: 'idle' });
   const liked = likes.some(l => l.userId === currentUserId);
   if (liked) {
@@ -81,7 +80,6 @@ function LikeButton({ postId, likes, currentUserId }) {
       axios.delete(`/api/likes/${postId}`)
         .then(() => {
           setResponse({ status: 'success' });
-          router.replace(router.asPath, undefined, { scroll: false });
         }).catch(error => {
           setResponse({ status: 'error', error });
         });
