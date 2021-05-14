@@ -17,7 +17,7 @@ export async function getServerSideProps({ req }) {
     { $set: { user: { $arrayElemAt: ['$users', 0] } } },
     {
       $project: {
-        _id: 1, text: 1, files: 1, 'user._id': 1,
+        _id: 1, text: 1, files: 1, 'user._id': 1, 'user.avatar': 1,
         'user.firstName': 1, 'user.lastName': 1, 'likes.userId': 1,
         commentsCount: { $size: '$comments' }
       }
