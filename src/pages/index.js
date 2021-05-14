@@ -53,7 +53,7 @@ export default function Home({ currentUserId, posts }) {
           <Link href={`/posts/${_id}`}>
             <a className={css.stretchedLink} />
           </Link>
-          <div>
+          <div className={css.header}>
             <img src={user.avatar || '/default-avatar.svg'} className={css.avatar} />
             <Link href={`/users/${user._id}`}>
               <a className={css.username}>

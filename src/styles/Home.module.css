@@ -19,6 +19,10 @@
   margin-top: 0.25em;
   position: relative;
 }
+.header {
+  display: flex;
+  align-items: center;
+}
 .avatar {
   width: 3em;
   height: 3em;
@@ -26,6 +30,7 @@
   border-radius: 50%;
 }
 .username {
+  margin-left: 0.5em;
   font-size: large;
   position: relative;
 }
