@@ -8,7 +8,6 @@ import {
     Modal,
     Segment
 } from "semantic-ui-react";
-import { useRouter } from 'next/router';
 import InputFile from '../FilePicker';
 
 export default function EditModal({ user, trigger }) {
@@ -35,7 +34,6 @@ export default function EditModal({ user, trigger }) {
 function EditForm({ user, onDone }) {
     const [response, setResponse] = useState({ state: 'idle' });
     const [avatarInput, setAvatarInput] = useState({ action: null });
-    const router = useRouter();
     const onSubmit = e => {
         e.preventDefault();
         const form = e.target;
@@ -55,7 +53,6 @@ function EditForm({ user, onDone }) {
             { headers: { "Content-Type": "multipart/form-data" } }
         ).then(() => {
             setResponse({ state: 'success' });
-            router.replace(router.asPath, undefined, { scroll: false });
             onDone();
         }).catch(error => {
             setResponse({ state: 'error', error });

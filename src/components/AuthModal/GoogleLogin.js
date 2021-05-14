@@ -1,17 +1,14 @@
 import axios from 'axios';
 import { useState } from 'react';
 import GoogleLoginCore from 'react-google-login';
-import { Button, Icon, Message } from 'semantic-ui-react';
-import { useRouter } from 'next/router';
+import { Button, Message } from 'semantic-ui-react';
 
 const GoogleLogin = ({ onDone }) => {
     const [response, setResponse] = useState({ state: 'idle' });
-    const router = useRouter();
     const onGoogleLoggedIn = response => {
         setResponse({ state: 'loading' });
         axios.post('/api/auth/google', { idToken: response.tokenId })
             .then(() => {
-                router.replace(router.asPath, undefined, { scroll: false });
                 setResponse({ state: 'success' });
                 onDone();
             })

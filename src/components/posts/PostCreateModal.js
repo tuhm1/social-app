@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useRouter } from "next/router";
 import { useState } from "react";
 import { Button, Form, Message, Modal } from "semantic-ui-react";
 import InputFile from "../FilePicker";
@@ -27,7 +26,6 @@ export default function PostCreateModal({ trigger }) {
 function PostCreateForm({ onDone }) {
     const [files, setFiles] = useState([]);
     const [response, setResponse] = useState({ status: 'idle' });
-    const router = useRouter();
     const onSubmit = e => {
         e.preventDefault();
         const form = e.target;
@@ -42,7 +40,6 @@ function PostCreateForm({ onDone }) {
                 form.reset();
                 setFiles([]);
                 setResponse({ status: 'success' });
-                router.replace(router.asPath, undefined, { scroll: false });
                 onDone();
             }).catch(error => {
                 console.log(error);

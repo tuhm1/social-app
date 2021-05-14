@@ -1,11 +1,9 @@
 import axios from 'axios';
-import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Button, Divider, Form, Header, Message } from 'semantic-ui-react';
 import GoogleLogin from './GoogleLogin';
 const LogInForm = ({ onDone }) => {
     const [response, setResponse] = useState({ state: 'idle' });
-    const router = useRouter();
     const onSubmit = e => {
         e.preventDefault();
         setResponse({ state: 'loading' });
@@ -14,7 +12,6 @@ const LogInForm = ({ onDone }) => {
         e.target.reset();
         axios.post('/api/auth/login', { username, password })
             .then(() => {
-                router.replace(router.asPath, undefined, { scroll: false });
                 setResponse({ state: 'success' });
                 onDone();
             })

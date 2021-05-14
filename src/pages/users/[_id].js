@@ -7,6 +7,7 @@ import AuthModal from '../../components/AuthModal';
 import EditModal from '../../components/users/UserEditModal';
 import { useRouter } from 'next/router';
 import io from 'socket.io-client';
+import { useEffect } from 'react';
 
 export default function Profile({ user, currentUserId }) {
     const router = useRouter();
@@ -16,7 +17,7 @@ export default function Profile({ user, currentUserId }) {
             router.replace(router.asPath, undefined, { scroll: false });
         });
         return () => socket.close();
-    }, []);
+    }, [router]);
     return <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Menu inverted style={{ position: 'sticky', top: 0, zIndex: 2 }}>
             {!currentUserId && <AuthModal trigger={<Menu.Item as={Button} icon='user' />} />}

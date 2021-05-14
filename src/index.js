@@ -29,9 +29,9 @@ const passport = require('passport');
         }))
         .use(passport.initialize())
         .use(passport.session())
-        .use('/api/auth', require('./api/auth'))
-        .use('/api/user', require('./api/users'))
-        .use('/api/post', require('./api/posts'))
+        .use('/api/auth', require('./api/auth')(io))
+        .use('/api/user', require('./api/users')(io))
+        .use('/api/post', require('./api/posts')(io))
         .use('/api/likes', require('./api/likes')(io))
         .use('/api/comments', require('./api/comments')(io))
     const next = require('next')({ dev: process.env.NODE_ENV !== 'production' });
