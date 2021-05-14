@@ -70,18 +70,18 @@ function EditForm({ user, onDone }) {
             name='firstname'
             label='First name'
             required
-            value={user.firstName}
+            defaultValue={user.firstName}
         />
         <Form.Input
             name='lastname'
             label='Last name'
             required 
-            value={user.lastName}
+            defaultValue={user.lastName}
         />
         <Form.TextArea
             name='bio'
             label='Introduction'
-            value={user.bio}
+            defaultValue={user.bio}
         />
         <Button
             type='submit'
