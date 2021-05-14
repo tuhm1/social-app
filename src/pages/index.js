@@ -110,7 +110,6 @@ function LikeButton({ postId, likes, currentUserId }) {
     axios.post(`/api/likes/${postId}`)
       .then(() => {
         setResponse({ status: 'success' });
-        router.replace(router.asPath, undefined, { scroll: false });
       }).catch(error => {
         setResponse({ status: 'error', error });
       });
