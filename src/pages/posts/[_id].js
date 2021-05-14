@@ -44,14 +44,16 @@ export default function Post({ post, currentUserId }) {
         });
         return () => socket.close();
     }, []);
-    
+
     if (!post) {
         return <PostNotFound />
     }
     const { _id, text, files, user, likes, commentsCount } = post;
     return <div style={{ maxWidth: '700px', margin: 'auto' }}>
         <div>
-            <Image src={user.avatar || '/default-avatar.svg'} avatar style={{ height: '3em', width: '3em' }} />
+            <img src={user.avatar || '/default-avatar.svg'}
+                style={{ height: '3em', width: '3em', borderRadius: '50%', objectFit: 'cover', verticalAlign: 'middle', marginRight: '0.5em' }}
+            />
             <Link href={`/users/${user._id}`}>
                 <a style={{ fontSize: 'large' }}>
                     {`${user.firstName} ${user.lastName}`}
@@ -143,7 +145,7 @@ function RootComments({ postId, onReply }) {
         <CommentForm postId={postId} />
         {data.map(({ _id, text, user: { firstName, lastName, avatar }, repliesCount }) =>
             <Comment key={_id}>
-                <Comment.Avatar src={avatar || '/default-avatar.svg'} />
+                <Comment.Avatar src={avatar || '/default-avatar.svg'} style={{ borderRadius: '50%', overflow: 'hidden', height: '2.5em', objectFit: 'cover' }} />
                 <Comment.Content>
                     <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
                     <Comment.Text>{text}</Comment.Text>
@@ -177,7 +179,7 @@ function Replies({ postId, replyTo, onBack, onReply }) {
             <Button icon='angle left' onClick={() => onBack(parent)} />
                 Replies
             </Header>
-        <Comment.Avatar src={avatar || '/default-avatar.svg'} />
+        <Comment.Avatar src={avatar || '/default-avatar.svg'} style={{ borderRadius: '50%', overflow: 'hidden', height: '2.5em', objectFit: 'cover' }} />
         <Comment.Content>
             <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
             <Comment.Text>{text}</Comment.Text>
