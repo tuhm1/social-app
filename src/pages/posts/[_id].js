@@ -51,7 +51,7 @@ export default function Post({ post, currentUserId }) {
         return <PostNotFound />
     }
     const { _id, text, files, user, likes, commentsCount } = post;
-    return <div style={{ maxWidth: '700px', margin: 'auto' }}>
+    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
         <div>
             <img src={user.avatar || '/default-avatar.svg'}
                 style={{ height: '3em', width: '3em', borderRadius: '50%', objectFit: 'cover', verticalAlign: 'middle', marginRight: '0.5em' }}
@@ -178,9 +178,9 @@ function Replies({ postId, replyTo, onBack, onReply }) {
     const { text, replyTo: parent, user, replies } = data[0];
     return <Comment>
         <Header>
-            <Button basic icon='angle left' onClick={() => onBack(parent)} />
-            Replies
-        </Header>
+            <Button basic icon='angle left' onClick={() => onBack(parent)}/>
+                Replies
+            </Header>
         <CommentAvatar src={user.avatar} />
         <Comment.Content>
             <CommentAuthor {...user} />
