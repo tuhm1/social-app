@@ -13,11 +13,13 @@ export async function getServerSideProps({ req }) {
   const posts = await Post.aggregate([
     { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
     { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
+    { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
     { $set: { user: { $arrayElemAt: ['$users', 0] } } },
     {
       $project: {
         _id: 1, text: 1, files: 1, 'user._id': 1,
-        'user.firstName': 1, 'user.lastName': 1, 'likes.userId': 1
+        'user.firstName': 1, 'user.lastName': 1, 'likes.userId': 1,
+        commentsCount: { $size: '$comments' }
       }
     }
   ]);
@@ -37,7 +39,7 @@ export default function Home({ currentUserId, posts }) {
       className={masonryCss['masonry-grid']}
       columnClassName={masonryCss['masonry-grid_column']}
     >
-      {posts.map(({ _id, text, files, user, likes }) =>
+      {posts.map(({ _id, text, files, user, likes, commentsCount }) =>
         <div key={_id} className={'ui segment ' + css.post}>
           <Link href={`/posts/${_id}`}>
             <a className={css.stretchedLink} />
@@ -63,7 +65,9 @@ export default function Home({ currentUserId, posts }) {
           {files?.length > 0 && <Carousel files={files} className={css.carousel} />}
           <div className={css.buttons}>
             <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
-            <Button icon='comment' />
+            <Link href={`/posts/${_id}`}>
+              <Button icon='comment' content={commentsCount} />
+            </Link>
           </div>
         </div>
       )}

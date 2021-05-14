@@ -33,6 +33,7 @@ const passport = require('passport');
         .use('/api/user', require('./api/users'))
         .use('/api/post', require('./api/posts'))
         .use('/api/likes', require('./api/likes')(io))
+        .use('/api/comments', require('./api/comments')(io))
     const next = require('next')({ dev: process.env.NODE_ENV !== 'production' });
     await next.prepare();
     express.use((req, res) => next.getRequestHandler()(req, res))

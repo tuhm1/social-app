@@ -1,23 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-    Container, Image, Button, Segment, Header, Icon
+    Container, Image, Button, Segment, Header, Icon,
+    Form, Message, Comment, Divider, Placeholder
 } from "semantic-ui-react";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import mongoose from "mongoose";
 import Carousel from '../../components/Carousel';
+import axios from 'axios';
+import io from 'socket.io-client';
 
 export async function getServerSideProps({ req, params: { _id } }) {
+    console.log('req');
     const { Post } = req.app.get('dbContext');
     const result = await Post.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(_id) } },
         { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
         { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
+        { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
         { $set: { user: { $arrayElemAt: ['$users', 0] } } },
         {
             $project: {
                 _id: 1, text: 1, files: 1, 'user._id': 1,
-                'user.firstName': 1, 'user.lastName': 1, 'likes.userId': 1
+                'user.firstName': 1, 'user.lastName': 1, 'likes.userId': 1,
+                'commentsCount': { $size: '$comments' }
             }
         }
     ]);
@@ -34,7 +40,7 @@ export default function Post({ post, currentUserId }) {
     if (!post) {
         return <PostNotFound />
     }
-    const { _id, text, files, user, likes } = post;
+    const { _id, text, files, user, likes, commentsCount } = post;
     return <div style={{ maxWidth: '700px', margin: 'auto' }}>
         <div>
             <Image src={user.avatar || '/default-avatar.svg'} avatar style={{ height: '3em', width: '3em' }} />
@@ -48,7 +54,11 @@ export default function Post({ post, currentUserId }) {
             {text}
         </p>
         {files?.length > 0 && <Carousel files={files} />}
-        <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
+        <div>
+            <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
+            <Button basic icon='comment' content={commentsCount} />
+        </div>
+        <CommentSection postId={_id} />
     </div>
 }
 
@@ -90,6 +100,143 @@ function LikeButton({ postId, likes, currentUserId }) {
         icon='like'
         loading={response.status === 'loading'}
     />
+}
+
+function CommentSection({ postId }) {
+    const [root, setRoot] = useState({ postId });
+    useEffect(() => setRoot({ postId }), [postId]);
+    return <Comment.Group size='large' id='comments'>
+        <Header dividing>Comments</Header>
+        {root.postId
+            ? <RootComments postId={postId} onReply={_id => setRoot({ replyTo: _id })} />
+            : <Replies
+                postId={postId}
+                replyTo={root.replyTo}
+                onBack={replyTo => setRoot(replyTo ? { replyTo } : { postId })}
+                onReply={_id => setRoot({ replyTo: _id })}
+            />
+        }
+    </Comment.Group>
+}
+
+function RootComments({ postId, onReply }) {
+    const [data, setData] = useState();
+    useEffect(() => {
+        const fetchComments = async () => {
+            const { data } = await axios.get(`/api/comments`, { params: { postId } })
+            setData(data);
+        }
+        fetchComments();
+        const socket = io();
+        socket.onAny(() => fetchComments());
+        return () => socket.close();
+    }, [postId]);
+
+    if (!data) return <CommentsPlaceHolder />;
+    return <>
+        <CommentForm postId={postId} />
+        {data.map(({ _id, text, user: { firstName, lastName, avatar }, repliesCount }) =>
+            <Comment key={_id}>
+                <Comment.Avatar src={avatar || '/default-avatar.svg'} />
+                <Comment.Content>
+                    <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
+                    <Comment.Text>{text}</Comment.Text>
+                    <Comment.Actions>
+                        <Comment.Action onClick={() => onReply(_id)}>
+                            {`Reply ${repliesCount > 0 ? ` (${repliesCount})` : ''}`}
+                        </Comment.Action>
+                    </Comment.Actions>
+                </Comment.Content>
+            </Comment>
+        )}
+    </>
+}
+
+function Replies({ postId, replyTo, onBack, onReply }) {
+    const [data, setData] = useState();
+    useEffect(() => {
+        const fetchComments = async () => {
+            const { data } = await axios.get(`/api/comments`, { params: { replyTo } })
+            setData(data);
+        }
+        fetchComments();
+        const socket = io();
+        socket.onAny(() => fetchComments());
+        return () => socket.close();
+    }, [replyTo]);
+    if (!data) return <CommentsPlaceHolder />;
+    const { text, replyTo: parent, user: { firstName, lastName, avatar }, replies } = data[0];
+    return <Comment>
+        <Header>
+            <Button icon='angle left' onClick={() => onBack(parent)} />
+                Replies
+            </Header>
+        <Comment.Avatar src={avatar || '/default-avatar.svg'} />
+        <Comment.Content>
+            <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
+            <Comment.Text>{text}</Comment.Text>
+            <Divider />
+            <CommentForm postId={postId} replyTo={replyTo} />
+            <Comment.Group>
+                {replies.map(({ _id, text, user: { firstName, lastName, avatar }, repliesCount }) =>
+                    <Comment key={_id}>
+                        <Comment.Avatar src={avatar || '/default-avatar.svg'} />
+                        <Comment.Content>
+                            <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
+                            <Comment.Text>{text}</Comment.Text>
+                            <Comment.Actions>
+                                <Comment.Action onClick={() => onReply(_id)}>
+                                    {`Reply${repliesCount > 0 ? ` (${repliesCount})` : ''}`}
+                                </Comment.Action>
+                            </Comment.Actions>
+                        </Comment.Content>
+                    </Comment>
+                )}
+            </Comment.Group>
+        </Comment.Content>
+    </Comment>
+}
+
+function CommentsPlaceHolder() {
+    return <Placeholder>
+        {[...Array(5)].map((_, i) =>
+            <Placeholder.Header image key={i}>
+                <Placeholder.Line />
+                <Placeholder.Line />
+            </Placeholder.Header>
+        )}
+    </Placeholder>;
+}
+
+function CommentForm({ postId, replyTo }) {
+    const [response, setResponse] = useState({ status: 'idle' });
+    const onSubmit = e => {
+        e.preventDefault();
+        setResponse({ status: 'loading' });
+        axios.post(`/api/comments`, { text: e.target.text.value, postId, replyTo })
+            .then(() => {
+                setResponse({ status: 'success' });
+                e.target.reset();
+            }).catch(error => {
+                setResponse({ status: 'error', error });
+            });
+    }
+    return <Form
+        onSubmit={onSubmit}
+        loading={response.status === 'loading'}
+        error={response.status === 'error'}
+    >
+        <Form.TextArea name='text' placeholder='Add a comment...' required />
+        {response.status === 'error'
+            && <Message error>
+                <Message.Header>Error</Message.Header>
+                <Message.Content>
+                    {response.error.response?.data.message || response.error.message}
+                </Message.Content>
+            </Message>
+        }
+        <Button type='submit' icon='edit' content='Add Comment' primary />
+    </Form>
 }
 
 function PostNotFound() {
