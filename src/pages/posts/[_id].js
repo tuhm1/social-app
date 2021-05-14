@@ -11,7 +11,6 @@ import axios from 'axios';
 import io from 'socket.io-client';
 
 export async function getServerSideProps({ req, params: { _id } }) {
-    console.log('req');
     const { Post } = req.app.get('dbContext');
     const result = await Post.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(_id) } },
