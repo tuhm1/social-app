@@ -19,9 +19,6 @@ export default function Profile({ user, currentUserId }) {
         return () => socket.close();
     }, [router]);
     return <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Menu inverted style={{ position: 'sticky', top: 0, zIndex: 2 }}>
-            {!currentUserId && <AuthModal trigger={<Menu.Item as={Button} icon='user' />} />}
-        </Menu>
         <Container style={{ flexGrow: 1 }}>
             <Segment style={{
                 maxWidth: '700px', margin: 'auto', display: 'flex',
@@ -29,7 +26,7 @@ export default function Profile({ user, currentUserId }) {
             }}>
                 {user
                     ? <>
-                        <Image circular size='medium' src={user.avatar || '/default-avatar.svg'} />
+                        <img src={user.avatar || '/default-avatar.svg'} style={{ width: '300px', height: '300px', borderRadius: '50%', objectFit: 'cover' }} />
                         <Header as='h1' icon>
                             {`${user.firstName} ${user.lastName}`}
                             <Header.Subheader style={{ fontSize: 'large' }}>
