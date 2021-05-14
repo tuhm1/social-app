@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
-import {
-    Container, Image, Button, Segment, Header, Icon,
-    Form, Message, Comment, Divider, Placeholder
-} from "semantic-ui-react";
+import axios from 'axios';
+import mongoose from "mongoose";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import mongoose from "mongoose";
-import Carousel from '../../components/Carousel';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
+import {
+    Button,
+    Comment, Container,
+    Divider, Form, Header, Icon,
+    Message, Placeholder, Segment
+} from "semantic-ui-react";
 import io from 'socket.io-client';
+import Carousel from '../../components/Carousel';
 
 export async function getServerSideProps({ req, params: { _id } }) {
     const { Post } = req.app.get('dbContext');
@@ -143,11 +145,11 @@ function RootComments({ postId, onReply }) {
     if (!data) return <CommentsPlaceHolder />;
     return <>
         <CommentForm postId={postId} />
-        {data.map(({ _id, text, user: { firstName, lastName, avatar }, repliesCount }) =>
+        {data.map(({ _id, text, user, repliesCount }) =>
             <Comment key={_id}>
-                <Comment.Avatar src={avatar || '/default-avatar.svg'} style={{ borderRadius: '50%', overflow: 'hidden', height: '2.5em', objectFit: 'cover' }} />
+                <CommentAvatar src={user.avatar} />
                 <Comment.Content>
-                    <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
+                    <CommentAuthor {...user} />
                     <Comment.Text>{text}</Comment.Text>
                     <Comment.Actions>
                         <Comment.Action onClick={() => onReply(_id)}>
@@ -173,24 +175,24 @@ function Replies({ postId, replyTo, onBack, onReply }) {
         return () => socket.close();
     }, [replyTo]);
     if (!data) return <CommentsPlaceHolder />;
-    const { text, replyTo: parent, user: { firstName, lastName, avatar }, replies } = data[0];
+    const { text, replyTo: parent, user, replies } = data[0];
     return <Comment>
         <Header>
-            <Button icon='angle left' onClick={() => onBack(parent)} />
-                Replies
-            </Header>
-        <Comment.Avatar src={avatar || '/default-avatar.svg'} style={{ borderRadius: '50%', overflow: 'hidden', height: '2.5em', objectFit: 'cover' }} />
+            <Button basic icon='angle left' onClick={() => onBack(parent)} />
+            Replies
+        </Header>
+        <CommentAvatar src={user.avatar} />
         <Comment.Content>
-            <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
+            <CommentAuthor {...user} />
             <Comment.Text>{text}</Comment.Text>
             <Divider />
             <CommentForm postId={postId} replyTo={replyTo} />
             <Comment.Group>
-                {replies.map(({ _id, text, user: { firstName, lastName, avatar }, repliesCount }) =>
+                {replies.map(({ _id, text, user, repliesCount }) =>
                     <Comment key={_id}>
-                        <Comment.Avatar src={avatar || '/default-avatar.svg'} />
+                        <CommentAvatar src={user.avatar} />
                         <Comment.Content>
-                            <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
+                            <CommentAuthor {...user} />
                             <Comment.Text>{text}</Comment.Text>
                             <Comment.Actions>
                                 <Comment.Action onClick={() => onReply(_id)}>
@@ -204,7 +206,18 @@ function Replies({ postId, replyTo, onBack, onReply }) {
         </Comment.Content>
     </Comment>
 }
-
+function CommentAuthor({ _id, firstName, lastName, }) {
+    return <Link href={`/users/${_id}`}>
+        <a>
+            <Comment.Author>{`${firstName} ${lastName}`}</Comment.Author>
+        </a>
+    </Link>
+}
+function CommentAvatar({ src }) {
+    return <Comment.Avatar src={src || '/default-avatar.svg'}
+        style={{ borderRadius: '50%', overflow: 'hidden', height: '2.5em', objectFit: 'cover' }}
+    />
+}
 function CommentsPlaceHolder() {
     return <Placeholder>
         {[...Array(5)].map((_, i) =>
