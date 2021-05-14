@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Button, Image } from 'semantic-ui-react';
 import Masonry from 'react-masonry-css';
 import masonryCss from '../styles/masonry.module.css';
@@ -7,6 +7,7 @@ import css from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Carousel from '../components/Carousel';
+import io from 'socket.io-client';
 
 export async function getServerSideProps({ req }) {
   const { Post } = req.app.get('dbContext');
@@ -34,6 +35,14 @@ export async function getServerSideProps({ req }) {
 const breakpointCols = { default: 2, 800: 1 };
 
 export default function Home({ currentUserId, posts }) {
+  const router = useRouter();
+  useEffect(() => {
+    const socket = io();
+    socket.onAny(() => {
+      router.replace(router.asPath, undefined, { scroll: false });
+    });
+    return () => socket.close();
+  }, []);
   return <Container>
     <Masonry breakpointCols={breakpointCols}
       className={masonryCss['masonry-grid']}

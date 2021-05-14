@@ -5,8 +5,18 @@ import {
 } from "semantic-ui-react";
 import AuthModal from '../../components/AuthModal';
 import EditModal from '../../components/users/UserEditModal';
+import { useRouter } from 'next/router';
+import io from 'socket.io-client';
 
 export default function Profile({ user, currentUserId }) {
+    const router = useRouter();
+    useEffect(() => {
+        const socket = io();
+        socket.onAny(() => {
+            router.replace(router.asPath, undefined, { scroll: false });
+        });
+        return () => socket.close();
+    }, []);
     return <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Menu inverted style={{ position: 'sticky', top: 0, zIndex: 2 }}>
             {!currentUserId && <AuthModal trigger={<Menu.Item as={Button} icon='user' />} />}

@@ -36,6 +36,15 @@ export async function getServerSideProps({ req, params: { _id } }) {
 }
 
 export default function Post({ post, currentUserId }) {
+    const router = useRouter();
+    useEffect(() => {
+        const socket = io();
+        socket.onAny(() => {
+            router.replace(router.asPath, undefined, { scroll: false });
+        });
+        return () => socket.close();
+    }, []);
+    
     if (!post) {
         return <PostNotFound />
     }
