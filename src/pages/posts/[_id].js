@@ -105,6 +105,7 @@ function LikeButton({ postId, likes, currentUserId }) {
     return <Button
         onClick={onClick}
         content={likes.length}
+        basic
         icon='like'
         loading={response.status === 'loading'}
     />

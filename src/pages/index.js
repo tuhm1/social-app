@@ -54,7 +54,7 @@ export default function Home({ currentUserId, posts }) {
             <a className={css.stretchedLink} />
           </Link>
           <div>
-            <Image src={user.avatar || '/default-avatar.svg'} avatar className={css.avatar} />
+            <img src={user.avatar || '/default-avatar.svg'} className={css.avatar} />
             <Link href={`/users/${user._id}`}>
               <a className={css.username}>
                 {`${user.firstName} ${user.lastName}`}
@@ -75,7 +75,7 @@ export default function Home({ currentUserId, posts }) {
           <div className={css.buttons}>
             <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
             <Link href={`/posts/${_id}`}>
-              <Button icon='comment' content={commentsCount} />
+              <Button icon='comment' content={commentsCount} basic />
             </Link>
           </div>
         </div>
@@ -119,6 +119,7 @@ function LikeButton({ postId, likes, currentUserId }) {
     onClick={onClick}
     content={likes.length}
     icon='like'
+    basic
     loading={response.status === 'loading'}
   />
 }
