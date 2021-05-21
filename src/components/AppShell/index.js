@@ -1,62 +1,43 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Icon, Menu, Sidebar } from 'semantic-ui-react';
+import { Container, Icon, Menu, Sidebar } from 'semantic-ui-react';
 import AuthModal from '../AuthModal';
 import PostCreateModal from '../posts/PostCreateModal';
 
 export default function AppShell({ currentUserId, children }) {
-    const small = useMediaMatch('only screen and (max-width: 768px)');
+    const [sidebar, setSidebar] = useState(false);
+
     return <>
         <Head>
             <link rel="icon" href="/favicon.ico" />
         </Head>
-        {small
-            ? <SmallAppShell
+        <div>
+            <Menu
+                size='large'
+                inverted
+                style={{ position: 'sticky', top: 0, zIndex: 1, margin: 0 }}
+            >
+                <Container>
+                    <Menu.Item
+                        icon='sidebar'
+                        onClick={() => setSidebar(!sidebar)}
+                    />
+                    <Menu.Item header>Socialize</Menu.Item>
+                </Container>
+            </Menu>
+            <Sidebar
+                as={SidebarMenu}
                 currentUserId={currentUserId}
-                children={children}
+                visible={sidebar}
+                onHide={() => setSidebar(false)}
+                animation='overlay'
+                style={{ height: '100vh' }}
+                width='thin'
             />
-            : <LargeAppShell
-                currentUserId={currentUserId}
-                children={children}
-            />
-        }
-
-    </>
-}
-
-function SmallAppShell({ currentUserId, children }) {
-    const [sidebar, setSidebar] = useState(false);
-    return <div>
-        <Menu inverted style={{ position: 'sticky', top: 0, zIndex: 1, margin: 0 }}>
-            <Menu.Item
-                icon='sidebar'
-                onClick={() => setSidebar(!sidebar)}
-                position='right'
-            />
-        </Menu>
-        <Sidebar
-            as={SidebarMenu}
-            currentUserId={currentUserId}
-            visible={sidebar}
-            onHide={() => setSidebar(false)}
-            animation='overlay'
-            style={{ height: '100vh' }}
-        />
-        {children}
-    </div>
-}
-
-function LargeAppShell({ currentUserId, children }) {
-    return <div style={{ display: 'flex' }}>
-        <SidebarMenu
-            currentUserId={currentUserId}
-            style={{ position: 'sticky', top: 0, height: '100vh', margin: 0 }}
-        />
-        <div style={{ flexGrow: 1 }}>
             {children}
         </div>
-    </div>
+    </>
 }
 
 function SidebarMenu({ currentUserId, ...menuProps }) {

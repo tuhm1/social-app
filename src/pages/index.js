@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Button, Image } from 'semantic-ui-react';
-import Masonry from 'react-masonry-css';
-import masonryCss from '../styles/masonry.module.css';
-import Link from 'next/link';
-import css from '../styles/Home.module.css';
-import { useRouter } from 'next/router';
 import axios from 'axios';
-import Carousel from '../components/Carousel';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { Button, Container } from 'semantic-ui-react';
 import io from 'socket.io-client';
+import Carousel from '../components/Carousel';
+import css from '../styles/Home.module.css';
 
 export async function getServerSideProps({ req }) {
   const { Post } = req.app.get('dbContext');
@@ -32,8 +30,6 @@ export async function getServerSideProps({ req }) {
   };
 }
 
-const breakpointCols = { default: 2, 800: 1 };
-
 export default function Home({ currentUserId, posts }) {
   const router = useRouter();
   useEffect(() => {
@@ -43,45 +39,40 @@ export default function Home({ currentUserId, posts }) {
     });
     return () => socket.close();
   }, []);
-  return <Container>
-    <Masonry breakpointCols={breakpointCols}
-      className={masonryCss['masonry-grid']}
-      columnClassName={masonryCss['masonry-grid_column']}
-    >
-      {posts.map(({ _id, text, files, user, likes, commentsCount }) =>
-        <div key={_id} className={'ui segment ' + css.post}>
-          <Link href={`/posts/${_id}`}>
-            <a className={css.stretchedLink} />
+  return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+    {posts.map(({ _id, text, files, user, likes, commentsCount }) =>
+      <div key={_id} className={'ui segment ' + css.post}>
+        <Link href={`/posts/${_id}`}>
+          <a className={css.stretchedLink} />
+        </Link>
+        <div className={css.header}>
+          <img src={user.avatar || '/default-avatar.svg'} className={css.avatar} />
+          <Link href={`/users/${user._id}`}>
+            <a className={css.username}>
+              {`${user.firstName} ${user.lastName}`}
+            </a>
           </Link>
-          <div className={css.header}>
-            <img src={user.avatar || '/default-avatar.svg'} className={css.avatar} />
-            <Link href={`/users/${user._id}`}>
-              <a className={css.username}>
-                {`${user.firstName} ${user.lastName}`}
-              </a>
-            </Link>
-          </div>
-          <p className={css.text}>
-            {text.slice(0, 200)}
-            {text.length > 200
-              && <>...
-                      <Link href={`/posts/${_id}`}>
-                  <a>More</a>
-                </Link>
-              </>
-            }
-          </p>
-          {files?.length > 0 && <Carousel files={files} className={css.carousel} />}
-          <div className={css.buttons}>
-            <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
-            <Link href={`/posts/${_id}`}>
-              <Button icon='comment' content={commentsCount} basic />
-            </Link>
-          </div>
         </div>
-      )}
-    </Masonry>
-  </Container>
+        <p className={css.text}>
+          {text.slice(0, 200)}
+          {text.length > 200
+            && <>...
+                      <Link href={`/posts/${_id}`}>
+                <a>More</a>
+              </Link>
+            </>
+          }
+        </p>
+        {files?.length > 0 && <Carousel files={files} className={css.carousel} />}
+        <div className={css.buttons}>
+          <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
+          <Link href={`/posts/${_id}`}>
+            <Button icon='comment' content={commentsCount} basic />
+          </Link>
+        </div>
+      </div>
+    )}
+  </div>
 }
 
 function LikeButton({ postId, likes, currentUserId }) {

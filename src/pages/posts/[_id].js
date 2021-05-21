@@ -52,7 +52,7 @@ export default function Post({ post, currentUserId }) {
     }
     const { _id, text, files, user, likes, commentsCount } = post;
     return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
-        <div>
+        <Segment>
             <img src={user.avatar || '/default-avatar.svg'}
                 style={{ height: '3em', width: '3em', borderRadius: '50%', objectFit: 'cover', verticalAlign: 'middle', marginRight: '0.5em' }}
             />
@@ -61,15 +61,15 @@ export default function Post({ post, currentUserId }) {
                     {`${user.firstName} ${user.lastName}`}
                 </a>
             </Link>
-        </div>
-        <p style={{ fontSize: 'large' }}>
-            {text}
-        </p>
-        {files?.length > 0 && <Carousel files={files} />}
-        <div>
-            <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
-            <Button basic icon='comment' content={commentsCount} />
-        </div>
+            <p style={{ fontSize: 'large' }}>
+                {text}
+            </p>
+            {files?.length > 0 && <Carousel files={files} />}
+            <div>
+                <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
+                <Button basic icon='comment' content={commentsCount} />
+            </div>
+        </Segment>
         <CommentSection postId={_id} />
     </div>
 }
@@ -178,7 +178,7 @@ function Replies({ postId, replyTo, onBack, onReply }) {
     const { text, replyTo: parent, user, replies } = data[0];
     return <Comment>
         <Header>
-            <Button basic icon='angle left' onClick={() => onBack(parent)}/>
+            <Button basic icon='angle left' onClick={() => onBack(parent)} />
                 Replies
             </Header>
         <CommentAvatar src={user.avatar} />
