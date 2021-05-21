@@ -1,15 +1,30 @@
 import {
     Button, Container, Divider,
     Header, Image, Menu,
-    Segment, Statistic, Icon
+    Segment, Statistic, Icon, Modal, Message, Confirm
 } from "semantic-ui-react";
 import AuthModal from '../../components/AuthModal';
 import EditModal from '../../components/users/UserEditModal';
 import { useRouter } from 'next/router';
 import io from 'socket.io-client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import axios from "axios";
 
-export default function Profile({ user, currentUserId }) {
+export async function getServerSideProps({ req, params }) {
+    const currentUserId = req.user ?? null;
+    const _id = params._id;
+    const { User, Follow } = req.app.get('dbContext');
+    const [user, followersCount, followed] = await Promise.all([
+        User.findById(_id, { firstName: 1, lastName: 1, avatar: 1, bio: 1 }).lean(),
+        Follow.countDocuments({ followingId: _id }),
+        currentUserId && Follow.exists({ followingId: _id, followerId: currentUserId })
+    ])
+    return {
+        props: JSON.parse(JSON.stringify({ user, followersCount, followed, currentUserId }))
+    };
+};
+
+export default function Profile({ user, followersCount, followed, currentUserId }) {
     const router = useRouter();
     useEffect(() => {
         const socket = io();
@@ -34,12 +49,15 @@ export default function Profile({ user, currentUserId }) {
                             </Header.Subheader>
                         </Header>
                         <div>
-                            <Statistic value='123' label='followers' />
+                            <Statistic value={followersCount} label='followers' />
                             <Statistic value='456' label='posts' />
                         </div>
                         {currentUserId !== user._id
-                            ? <div style={{ position: 'sticky', bottom: 0 }}>
-                                <Button size='large'>Follow</Button>
+                            ? <div>
+                                {!followed
+                                    ? <FollowButton _id={user._id} />
+                                    : <UnfollowButton _id={user._id} />
+                                }
                                 <Button size='large'>Message</Button>
                             </div>
                             : <EditModal user={user} trigger={<Button icon='edit' content='Edit' />} />
@@ -57,14 +75,47 @@ export default function Profile({ user, currentUserId }) {
     </div>
 };
 
-export async function getServerSideProps({ req, params }) {
-    const _id = params._id;
-    const { User } = req.app.get('dbContext');
-    let user = await User.findById(_id).lean();
-    if (!user) {
-        return { props: { user: null } };
+
+function FollowButton({ _id }) {
+    const [error, setError] = useState();
+    const onClick = () => {
+        axios.post(`/api/follow/${_id}`).catch(setError)
+    };
+    return <>
+        <Button
+            onClick={onClick}
+            icon='add user'
+            content='Follow'
+            primary
+        />
+        {error && <FollowError error={error} onClose={() => setError()} />}
+    </>
+
+}
+function UnfollowButton({ _id }) {
+    const [error, setError] = useState();
+    const [confirm, setConfirm] = useState(false);
+    const unfollow = () => {
+        axios.delete(`/api/follow/${_id}`).catch(setError);
     }
-    user = { ...user, _id: user._id.toString() };
-    const currentUserId = req.user ?? null;
-    return { props: { user, currentUserId } };
-};
+    return <>
+        <Button
+            onClick={() => setConfirm(true)}
+            icon='user delete'
+            content='Unfollow'
+            basic
+        />
+        {confirm && <Confirm open={true} onConfirm={unfollow} content='Are you sure you want to unfollow?' />}
+        {error && <FollowError error={error} onClose={() => setError()} />}
+    </>
+}
+function FollowError({ error, onClose }) {
+    let message = error.response?.data?.errors?.followerId?.kind === 'required'
+        ? 'Please login first'
+        : error.message;
+    return <Modal open={true} closeIcon onClose={onClose}>
+        <Modal.Content>
+            <Message error header='Error' content={message} />
+        </Modal.Content>
+    </Modal>
+}

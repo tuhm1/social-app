@@ -85,10 +85,9 @@ function SidebarMenu({ currentUserId, ...menuProps }) {
                     <Icon name='bell' />
                     Notification
                 </Menu.Item>
-                <Menu.Item as='a'>
-                    <Icon name='group' />
-                    People
-                </Menu.Item>
+                <Link href='/people'>
+                    <Menu.Item as='a' icon='group' name='People' />
+                </Link>
                 <Menu.Item icon='user' content='Profile' />
                 <Menu.Item icon='log out' content='Log Out' as='a' />
             </>

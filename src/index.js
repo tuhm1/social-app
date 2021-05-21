@@ -10,10 +10,11 @@ const passport = require('passport');
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
-    express.set('dbContext', { 
+    express.set('dbContext', {
         ...require('./db/user'),
         Post: require('./db/post'),
-        Like: require('./db/like')
+        Like: require('./db/like'),
+        Follow: require('./db/follow')
     });
 
     const server = require('http').createServer(express);
@@ -34,6 +35,7 @@ const passport = require('passport');
         .use('/api/post', require('./api/posts')(io))
         .use('/api/likes', require('./api/likes')(io))
         .use('/api/comments', require('./api/comments')(io))
+        .use('/api/follow', require('./api/follow')(io))
     const next = require('next')({ dev: process.env.NODE_ENV !== 'production' });
     await next.prepare();
     express.use((req, res) => next.getRequestHandler()(req, res))
