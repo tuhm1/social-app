@@ -14,7 +14,9 @@ const passport = require('passport');
         ...require('./db/user'),
         Post: require('./db/post'),
         Like: require('./db/like'),
-        Follow: require('./db/follow')
+        Follow: require('./db/follow'),
+        Conversation: require('./db/conversation'),
+        Message: require('./db/message')
     });
 
     const server = require('http').createServer(express);
@@ -36,6 +38,8 @@ const passport = require('passport');
         .use('/api/likes', require('./api/likes')(io))
         .use('/api/comments', require('./api/comments')(io))
         .use('/api/follow', require('./api/follow')(io))
+        .use('/api/chat', require('./api/chat')(io))
+        .use('/api/notifications', require('./api/notifications'))
     const next = require('next')({ dev: process.env.NODE_ENV !== 'production' });
     await next.prepare();
     express.use((req, res) => next.getRequestHandler()(req, res))

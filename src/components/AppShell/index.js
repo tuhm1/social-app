@@ -1,7 +1,9 @@
+import axios from 'axios';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Container, Icon, Menu, Sidebar } from 'semantic-ui-react';
+import { useQuery } from 'react-query';
+import { Container, Icon, Label, Menu, Sidebar } from 'semantic-ui-react';
 import AuthModal from '../AuthModal';
 import PostCreateModal from '../posts/PostCreateModal';
 
@@ -41,6 +43,9 @@ export default function AppShell({ currentUserId, children }) {
 }
 
 function SidebarMenu({ currentUserId, ...menuProps }) {
+    const { data: notSeenConversations } = useQuery('/api/notifications/chat', () =>
+        axios.get('/api/notifications/chat').then(res => res.data)
+    );
     return <Menu inverted vertical icon='labeled' {...menuProps}>
         {currentUserId
             && <PostCreateModal trigger={<Menu.Item icon='plus' content='Post' />} />
@@ -58,10 +63,13 @@ function SidebarMenu({ currentUserId, ...menuProps }) {
         />
         {currentUserId &&
             <>
-                <Menu.Item as='a'>
-                    <Icon name='chat' />
-                    Message
-                </Menu.Item>
+                <Link href='/chat'>
+                    <Menu.Item as='a'>
+                        <Icon name='chat' />
+                        Message
+                        {notSeenConversations?.length > 0 && <Label color='red'>{notSeenConversations.length}</Label>}
+                    </Menu.Item>
+                </Link>
                 <Menu.Item as='a'>
                     <Icon name='bell' />
                     Notification
@@ -91,3 +99,4 @@ function useMediaMatch(query) {
     }, [matches, query]);
     return matches;
 }
+

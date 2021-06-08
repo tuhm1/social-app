@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import io from 'socket.io-client';
 import { useEffect, useState } from 'react';
 import axios from "axios";
+import Link from "next/link";
 
 export async function getServerSideProps({ req, params }) {
     const currentUserId = req.user ?? null;
@@ -58,7 +59,9 @@ export default function Profile({ user, followersCount, followed, currentUserId 
                                     ? <FollowButton _id={user._id} />
                                     : <UnfollowButton _id={user._id} />
                                 }
-                                <Button size='large'>Message</Button>
+                                <Link href={`/chat/users/${user._id}`}>
+                                    <Button as='a' primary>Message</Button>
+                                </Link>
                             </div>
                             : <EditModal user={user} trigger={<Button icon='edit' content='Edit' />} />
                         }

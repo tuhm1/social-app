@@ -27,6 +27,14 @@ module.exports = io => {
             await user.save();
             res.json(user);
             io.emit('user/update', user);
-        });
+        })
+        .get('/', async (req, res) => {
+            const users = await User.aggregate([
+                { $set: { name: { $concat: ['$firstName', ' ', '$lastName'] } } },
+                { $match: { name: { $regex: `^${req.query.q}`, $options: 'i' } } },
+                { $project: { _id: 1, firstName: 1, lastName: 1, avatar: 1 } }
+            ]);
+            res.json(users);
+        })
     return app;
 }
