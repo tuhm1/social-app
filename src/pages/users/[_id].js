@@ -40,7 +40,7 @@ function UserNotFound() {
 }
 
 function Info({ user, followersCount, followed, postsCount, currentUserId }) {
-    const { _id, avatar, firstName, lastName, bio, } = user;
+    const { _id, avatar, firstName, lastName, bio, email, username } = user;
     return <Segment
         style={{
             display: 'flex', minHeight: '100vh',
@@ -50,10 +50,11 @@ function Info({ user, followersCount, followed, postsCount, currentUserId }) {
         <img src={avatar || '/default-avatar.svg'} style={{ width: '250px', height: '250px', borderRadius: '50%', objectFit: 'cover' }} />
         <Header as='h1' icon>
             {`${firstName} ${lastName}`}
-            <Header.Subheader style={{ fontSize: 'large' }}>
-                {bio}
+            <Header.Subheader>
+                {email || `@${username}`}
             </Header.Subheader>
         </Header>
+        <p style={{ textAlign: 'center', fontSize: 'large' }}>{bio}</p>
         <div>
             <Statistic value={followersCount} label='followers' />
             <Statistic value={postsCount} label='posts' />

@@ -19,7 +19,7 @@ app
         const { _id } = req.params;
         try {
             const [user, followersCount, followed, postsCount, posts] = await Promise.all([
-                User.findById(_id, { firstName: 1, lastName: 1, avatar: 1, bio: 1 }).lean(),
+                User.findById(_id, { firstName: 1, lastName: 1, avatar: 1, bio: 1, username: 1, email: 1 }).lean(),
                 Follow.countDocuments({ followingId: _id }),
                 req.user && Follow.exists({ followingId: _id, followerId: req.user }),
                 Post.countDocuments({ userId: _id }),
