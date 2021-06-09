@@ -78,7 +78,7 @@ function ButtonNewConversation({ style }) {
     const router = useRouter();
     return <Modal
         trigger={<Button icon='edit' primary style={style} />}
-        content={<CreateConversation onCreated={conversationId => router.push(`/chat/rooms/${conversationId}`)} />}
+        content={<CreateConversation onCreated={conversationId => router.push(`/chat/conversations/${conversationId}`)} />}
         open={open}
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
