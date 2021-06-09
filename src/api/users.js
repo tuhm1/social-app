@@ -78,8 +78,8 @@ app
         } else if (avatar_action === 'change') {
             user.avatar = req.file.secure_url;
         }
-        user.first_name = first_name;
-        user.last_name = last_name;
+        user.firstName = first_name;
+        user.lastName = last_name;
         if (bio) user.bio = bio;
         await user.save();
         res.json(user);
