@@ -6,6 +6,9 @@ const userSchema = new mongoose.Schema({
     avatar: String,
     bio: String
 });
+
+userSchema.index({ firstName: 'text', lastName: 'text', username: 'text', email: 'text' });
+
 const User = mongoose.model('User', userSchema);
 
 const localSchema = new mongoose.Schema({

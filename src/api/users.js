@@ -85,12 +85,8 @@ app
         res.json(user);
     })
     .get('/', async (req, res) => {
-        const users = await User.aggregate([
-            { $set: { name: { $concat: ['$firstName', ' ', '$lastName'] } } },
-            { $match: { name: { $regex: `^${req.query.q}`, $options: 'i' } } },
-            { $project: { _id: 1, firstName: 1, lastName: 1, avatar: 1 } }
-        ]);
+        const users = await User.find({ $text: { $search: req.query.q } });
         res.json(users);
     })
-    
+
 module.exports = app;

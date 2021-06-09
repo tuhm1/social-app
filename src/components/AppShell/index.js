@@ -6,6 +6,7 @@ import { useQuery } from 'react-query';
 import { Container, Icon, Label, Menu, Sidebar } from 'semantic-ui-react';
 import AuthModal from '../AuthModal';
 import PostCreateModal from '../posts/PostCreateModal';
+import Search from '../users/Search';
 
 export default function AppShell({ currentUserId, children }) {
     const [sidebar, setSidebar] = useState(false);
@@ -59,11 +60,13 @@ function SidebarMenu(props) {
         {!currentUserId
             && <AuthModal trigger={<Menu.Item as='a' icon='user' content='Log In' />} />
         }
-        <Menu.Item
-            position='right'
-            icon='search'
-            content='Search'
-        />
+        <Search trigger={
+            <Menu.Item
+                position='right'
+                icon='search'
+                content='Search'
+            />
+        } />
         {currentUserId &&
             <>
                 <Link href='/chat'>
