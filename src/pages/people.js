@@ -47,7 +47,7 @@ export default function People({ following, followers }) {
         return () => socket.close();
     }, []);
 
-    return <Container>
+    return <div style={{ maxWidth: '700px', 'margin': 'auto', padding: '1em' }}>
         <Head>
             <title>People</title>
         </Head>
@@ -63,18 +63,18 @@ export default function People({ following, followers }) {
                 }
             ]}
         />
-    </Container>
+    </div>
 }
 
 function FollowerList({ followers }) {
     return followers.length > 0
-        ? <div style={{ maxWidth: '700px', 'margin': 'auto' }}>
+        ? <div>
             {followers.map(user =>
                 <>
                     <div key={user._id} style={{ display: 'flex', alignItems: 'center' }}>
-                        <img src={user.avatar || '/default-avatar.svg'} style={{ width: '4em', height: '4em', float: 'left', borderRadius: '50%', objectFit: 'cover' }} />
+                        <img src={user.avatar || '/default-avatar.svg'} style={{ width: '3em', height: '3em', float: 'left', borderRadius: '50%', objectFit: 'cover' }} />
                         <Link href={`/users/${user._id}`}>
-                            <a style={{ float: 'left', fontSize: 'x-large', marginLeft: '0.5em' }}>
+                            <a style={{ float: 'left', fontWeight: 'bold', marginLeft: '0.5em' }}>
                                 {`${user.firstName} ${user.lastName}`}
                             </a>
                         </Link>
@@ -91,7 +91,7 @@ function FollowerList({ followers }) {
                 </>
             )}
         </div>
-        : <Segment placeholder style={{ maxWidth: '700px', margin: 'auto' }}>
+        : <Segment placeholder>
             <Header icon>
                 <Icon name='user' />
                     You haven't had any followers.
@@ -101,13 +101,13 @@ function FollowerList({ followers }) {
 
 function FollowingList({ following }) {
     return following.length > 0
-        ? <div style={{ maxWidth: '700px', margin: 'auto' }}>
+        ? <div>
             {following.map(user =>
                 <>
                     <div key={user._id} style={{ display: 'flex', alignItems: 'center' }}>
-                        <img src={user.avatar || '/default-avatar.svg'} style={{ width: '4em', height: '4em', float: 'left', borderRadius: '50%', objectFit: 'cover' }} />
+                        <img src={user.avatar || '/default-avatar.svg'} style={{ width: '3em', height: '3em', float: 'left', borderRadius: '50%', objectFit: 'cover' }} />
                         <Link href={`/users/${user._id}`}>
-                            <a style={{ float: 'left', fontSize: 'x-large', marginLeft: '0.5em' }}>
+                            <a style={{ float: 'left', fontWeight: 'bold', marginLeft: '0.5em' }}>
                                 {`${user.firstName} ${user.lastName}`}
                             </a>
                         </Link>
@@ -124,7 +124,7 @@ function FollowingList({ following }) {
                 </>
             )}
         </div>
-        : <Segment placeholder style={{ maxWidth: '700px', margin: 'auto' }}>
+        : <Segment placeholder>
             <Header icon>
                 <Icon name='user' />
                     You haven't followed anyone.
