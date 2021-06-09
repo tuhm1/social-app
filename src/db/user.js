@@ -27,7 +27,8 @@ localSchema.methods.comparePassword = function (password) {
 const LocalUser = User.discriminator('LocalUser', localSchema);
 
 const googleSchema = new mongoose.Schema({
-    googleId: { type: String, required: true, unique: true, sparse: true }
+    googleId: { type: String, required: true, unique: true, sparse: true },
+    email: { type: String }
 });
 const GoogleUser = User.discriminator('GoogleUser', googleSchema);
 

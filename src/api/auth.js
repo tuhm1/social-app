@@ -17,6 +17,7 @@ passport.use('google', new GoogleStrategy(async (req, done) => {
                 googleId: payload.sub,
                 firstName: payload.given_name,
                 lastName: payload.family_name,
+                email: payload.email
             });
         }
         done(null, user._id);
