@@ -80,7 +80,9 @@ function SidebarMenu(props) {
                 <Link href='/people'>
                     <Menu.Item as='a' icon='group' name='People' />
                 </Link>
-                <Menu.Item icon='user' content='Profile' />
+                <Link href={`/users/${currentUserId}`}>
+                    <Menu.Item as='a' icon='user' content='Profile' />
+                </Link>
                 <Menu.Item icon='log out' content='Log Out' as='a' />
             </>
         }
