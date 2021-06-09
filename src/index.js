@@ -33,7 +33,7 @@ const passport = require('passport');
         .use(passport.initialize())
         .use(passport.session())
         .use('/api/auth', require('./api/auth'))
-        .use('/api/user', require('./api/users')(io))
+        .use('/api/user', require('./api/users'))
         .use('/api/post', require('./api/posts')(io))
         .use('/api/likes', require('./api/likes')(io))
         .use('/api/comments', require('./api/comments')(io))

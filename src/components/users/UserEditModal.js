@@ -9,6 +9,7 @@ import {
     Segment
 } from "semantic-ui-react";
 import InputFile from '../FilePicker';
+import { useQueryClient } from 'react-query';
 
 export default function EditModal({ user, trigger }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -34,6 +35,7 @@ export default function EditModal({ user, trigger }) {
 function EditForm({ user, onDone }) {
     const [response, setResponse] = useState({ state: 'idle' });
     const [avatarInput, setAvatarInput] = useState({ action: null });
+    const queryClient = useQueryClient();
     const onSubmit = e => {
         e.preventDefault();
         const form = e.target;
@@ -53,6 +55,7 @@ function EditForm({ user, onDone }) {
             { headers: { "Content-Type": "multipart/form-data" } }
         ).then(() => {
             setResponse({ state: 'success' });
+            queryClient.invalidateQueries();
             onDone();
         }).catch(error => {
             setResponse({ state: 'error', error });
@@ -75,7 +78,7 @@ function EditForm({ user, onDone }) {
         <Form.Input
             name='lastname'
             label='Last name'
-            required 
+            required
             defaultValue={user.lastName}
         />
         <Form.TextArea
