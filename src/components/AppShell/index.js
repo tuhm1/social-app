@@ -42,11 +42,14 @@ export default function AppShell({ currentUserId, children }) {
     </>
 }
 
-function SidebarMenu({ currentUserId, ...menuProps }) {
+function SidebarMenu(props) {
+    const { data: currentUserId } = useQuery('/api/auth/me', () =>
+        axios.get('/api/auth/me').then(res => res.data)
+    );
     const { data: notSeenConversations } = useQuery('/api/notifications/chat', () =>
         axios.get('/api/notifications/chat').then(res => res.data)
     );
-    return <Menu inverted vertical icon='labeled' {...menuProps}>
+    return <Menu inverted vertical icon='labeled' {...props}>
         {currentUserId
             && <PostCreateModal trigger={<Menu.Item icon='plus' content='Post' />} />
         }

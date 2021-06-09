@@ -45,7 +45,7 @@ module.exports = io => {
     const app = express.Router();
     app
         .get('/me', (req, res) => {
-            res.json(req.session.userId);
+            res.json(req.user);
         })
         .post('/logout', (req, res) => {
             const userId = req.user;
