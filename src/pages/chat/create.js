@@ -24,7 +24,7 @@ export default function CreateConversation({ onCreated }) {
         {users.length > 0
             && <Form.Field>
                 <label>Users</label>
-                <Segment style={{ margin: 0 }}>
+                <div>
                     {users.map(u =>
                         <Label image size='large' key={u._id}>
                             <img src={u.avatar || '/default-avatar.svg'} />
@@ -34,7 +34,7 @@ export default function CreateConversation({ onCreated }) {
                             />
                         </Label>
                     )}
-                </Segment>
+                </div>
             </Form.Field>
         }
         <Form.Field>
@@ -66,15 +66,18 @@ function AddUser({ onSelect }) {
             onSelect(data.result);
             setQuery('');
         }}
-        resultRenderer={user =>
-            <div key={user._id} style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
-                <img src={user.avatar || '/default-avatar.svg'} style={{ width: '2em', height: '2em' }} />
-                <div style={{ marginLeft: '0.5em' }}>
-                    {`${user.firstName} ${user.lastName}`}
-                </div>
-            </div>
-        }
+        resultRenderer={SearchRenderer}
         results={results}
         loading={loading}
     />
+}
+
+function SearchRenderer({ _id, firstName, lastName, avatar, email, username }) {
+    return <div key={_id} style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
+        <img src={avatar || '/default-avatar.svg'} style={{ width: '3em', height: '3em' }} />
+        <div style={{ marginLeft: '0.5em' }}>
+            <a style={{ fontWeight: 'bold' }}>{`${firstName} ${lastName}`}</a>
+            <p>{email || `@${username}`}</p>
+        </div>
+    </div>
 }
