@@ -37,7 +37,7 @@ export default function Conversation() {
             <title>Chat - {`@${conversationId}`}</title>
         </Head>
         <div style={{ maxWidth: '700px', margin: 'auto' }}>
-            <div style={{ padding: '1em' }}>
+            <div style={{ padding: '1em', minHeight: '100vh' }}>
                 {messages?.map(m =>
                     <Fragment key={m._id}>
                         <Message {...m} />
