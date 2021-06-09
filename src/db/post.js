@@ -9,6 +9,10 @@ const schema = new mongoose.Schema({
     tags: [String],
     userId: { type: mongoose.Types.ObjectId, required: true }
 }, { timestamps: true });
+
 schema.plugin(mongooseDelete);
+
+schema.index({ userId: 1, createdAt: -1 });
+
 const Post = mongoose.model('post', schema);
 module.exports = Post;
