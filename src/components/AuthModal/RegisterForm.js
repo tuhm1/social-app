@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Button, Form, Header, Message, Divider } from 'semantic-ui-react';
 import axios from 'axios';
 import GoogleLogin from './GoogleLogin';
+import { useQueryClient } from 'react-query';
 const RegisterForm = ({ onDone }) => {
     const [response, setResponse] = useState({ state: 'idle' });
+    const queryClient = useQueryClient();
     const onSubmit = e => {
         e.preventDefault();
         const firstName = e.target.firstname.value,
@@ -15,6 +17,7 @@ const RegisterForm = ({ onDone }) => {
         axios.post('/api/auth/register', { firstName, lastName, username, password })
             .then(() => {
                 setResponse({ state: 'success' });
+                queryClient.invalidateQueries();
                 onDone();
             })
             .catch(error => {

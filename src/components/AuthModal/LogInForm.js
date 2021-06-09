@@ -1,9 +1,11 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useQueryClient } from 'react-query';
 import { Button, Divider, Form, Header, Message } from 'semantic-ui-react';
 import GoogleLogin from './GoogleLogin';
 const LogInForm = ({ onDone }) => {
     const [response, setResponse] = useState({ state: 'idle' });
+    const queryClient = useQueryClient();
     const onSubmit = e => {
         e.preventDefault();
         setResponse({ state: 'loading' });
@@ -13,6 +15,7 @@ const LogInForm = ({ onDone }) => {
         axios.post('/api/auth/login', { username, password })
             .then(() => {
                 setResponse({ state: 'success' });
+                queryClient.invalidateQueries();
                 onDone();
             })
             .catch(error => {
