@@ -10,6 +10,7 @@ import css from '../styles/Home.module.css';
 export async function getServerSideProps({ req }) {
   const { Post } = req.app.get('dbContext');
   const posts = await Post.aggregate([
+    { $sort: { createdAt: -1, _id: -1 } },
     { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
     { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
     { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },

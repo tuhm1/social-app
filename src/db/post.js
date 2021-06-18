@@ -12,7 +12,8 @@ const schema = new mongoose.Schema({
 
 schema.plugin(mongooseDelete);
 
-schema.index({ userId: 1, createdAt: -1 });
+schema.index({ createdAt: -1, _id: -1 });
+schema.index({ userId: 1, createdAt: -1, _id: -1 });
 
 const Post = mongoose.model('post', schema);
 module.exports = Post;
