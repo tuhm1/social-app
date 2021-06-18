@@ -15,11 +15,11 @@ export default function AppShell({ currentUserId, children }) {
         <Head>
             <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div>
+        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Menu
                 size='large'
                 inverted
-                style={{ position: 'sticky', top: 0, zIndex: 1, margin: 0 }}
+                style={{ margin: 0 }}
             >
                 <Container>
                     <Menu.Item
@@ -38,7 +38,9 @@ export default function AppShell({ currentUserId, children }) {
                 style={{ height: '100vh' }}
                 width='thin'
             />
-            {children}
+            <div style={{ overflow: 'auto', flexGrow: 1 }}>
+                {children}
+            </div>
         </div>
     </>
 }

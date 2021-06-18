@@ -20,7 +20,7 @@ export default function ChatIndex() {
         <Head>
             <title>Chat</title>
         </Head>
-        <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+        <div style={{ maxWidth: '800px', margin: 'auto', padding: '1em' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontSize: 'x-large' }}>Chat</span>
                 <ButtonNewConversation style={{ marginLeft: 'auto' }} />

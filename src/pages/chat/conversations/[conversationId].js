@@ -20,7 +20,7 @@ export default function Conversation() {
         <Head>
             <title>Chat - {`@${conversationId}`}</title>
         </Head>
-        <div>
+        <div className={css.page}>
             <div className={css['media-buttons']}>
                 <ButtonVideo peer={peer} socket={socket} />
                 <ButtonAudio peer={peer} socket={socket} />
@@ -52,9 +52,9 @@ function MessageChat({ conversationId }) {
         socket.onAny(() => refetch());
         return () => socket.close();
     }, []);
-    return <div className={css.messages}>
-        <div style={{ maxWidth: '700px', margin: 'auto' }}>
-            <div style={{ padding: '1em', minHeight: '100vh' }}>
+    return <div className={css['message-chat']}>
+        <div className={css['message-chat-1']}>
+            <div className={css.messages}>
                 {messages?.map(m =>
                     <Fragment key={m._id}>
                         <Message {...m} />
@@ -109,49 +109,46 @@ function ChatForm({ conversationId }) {
                 setLoading(false);
             });
     }
-    return <Segment
-        style={{ position: 'sticky', bottom: 0 }}>
-        <Form
-            onSubmit={e => {
-                e.preventDefault();
-                postMessage();
-            }}
-            loading={loading}
-        >
-            <Form.Field>
-                <textarea value={text} onChange={e => setText(e.target.value)}
-                    ref={textareaRef} rows={1} onKeyPress={e => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            postMessage();
-                        }
-                    }}
-                />
-            </Form.Field>
-            <div style={{ display: 'flex' }}>
-                <FilePickerPopup
-                    value={files}
-                    onChange={setFiles}
-                    trigger={
-                        <Button basic type='button' icon='images' primary={files.length > 0}
-                            content={files.length > 0 ? String(files.length) : null}
-                        />
+    return <Form
+        onSubmit={e => {
+            e.preventDefault();
+            postMessage();
+        }}
+        loading={loading}
+    >
+        <Form.Field>
+            <textarea value={text} onChange={e => setText(e.target.value)}
+                ref={textareaRef} rows={1} onKeyPress={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        postMessage();
                     }
-                />
-                <EmojiPickerPopup
-                    onSelect={e => {
-                        setText(
-                            text.substring(0, textareaRef.current.selectionStart)
-                            + e.native
-                            + text.substring(textareaRef.current.selectionEnd)
-                        );
-                    }}
-                    trigger={<Button icon='smile outline' basic type='button' />}
-                />
-                <Button type='submit' icon='send' primary style={{ marginLeft: 'auto' }} />
-            </div>
-        </Form >
-    </Segment>
+                }}
+            />
+        </Form.Field>
+        <div style={{ display: 'flex' }}>
+            <FilePickerPopup
+                value={files}
+                onChange={setFiles}
+                trigger={
+                    <Button basic type='button' icon='images' primary={files.length > 0}
+                        content={files.length > 0 ? String(files.length) : null}
+                    />
+                }
+            />
+            <EmojiPickerPopup
+                onSelect={e => {
+                    setText(
+                        text.substring(0, textareaRef.current.selectionStart)
+                        + e.native
+                        + text.substring(textareaRef.current.selectionEnd)
+                    );
+                }}
+                trigger={<Button icon='smile outline' basic type='button' />}
+            />
+            <Button type='submit' icon='send' primary style={{ marginLeft: 'auto' }} />
+        </div>
+    </Form>
 }
 
 function EmojiPickerPopup({ onSelect, trigger }) {

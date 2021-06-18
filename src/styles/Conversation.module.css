@@ -1,7 +1,14 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 .container {
     display: flex;
-    height: 100vh;
     justify-content: center;
+    overflow: auto;
+    flex-grow: 1;
 }
 
 .media-buttons {
@@ -18,10 +25,24 @@
     scroll-snap-type: y mandatory;
 }
 
-.messages {
+.message-chat {
     overflow: auto;
     flex-grow: 1;
     width: 33%;
+}
+
+.message-chat-1 {
+    margin: auto;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.messages {
+    padding: 1em;
+    flex-grow: 1;
+    overflow: auto;
 }
 
 .track {
@@ -38,7 +59,7 @@
         flex-direction: column;
     }
 
-    .messages {
+    .message-chat {
         width: 100%;
         height: 50%;
     }
