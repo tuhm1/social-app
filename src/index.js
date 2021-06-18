@@ -40,6 +40,9 @@ const passport = require('passport');
         .use('/api/follow', require('./api/follow')(io))
         .use('/api/chat', require('./api/chat')(io))
         .use('/api/notifications', require('./api/notifications'))
+
+    require('./api/rtc')(io);
+
     const next = require('next')({ dev: process.env.NODE_ENV !== 'production' });
     await next.prepare();
     express.use((req, res) => next.getRequestHandler()(req, res))

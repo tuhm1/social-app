@@ -34,7 +34,8 @@
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^2.0.3",
     "socket.io": "^4.1.1",
-    "socket.io-client": "^4.1.1"
+    "socket.io-client": "^4.1.1",
+    "wrtc": "^0.4.7"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

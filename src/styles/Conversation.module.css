@@ -1,0 +1,54 @@
+.container {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+}
+
+.media-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.tracks {
+    background-color: black;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow: auto;
+    scroll-snap-type: y mandatory;
+}
+
+.messages {
+    overflow: auto;
+    flex-grow: 1;
+    width: 33%;
+}
+
+.track {
+    border: teal 1px;
+    width: 50%;
+    flex-grow: 1;
+    max-height: 100%;
+    object-fit: contain;
+    scroll-snap-align: start;
+}
+
+@media screen and (max-width: 600px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .messages {
+        width: 100%;
+        height: 50%;
+    }
+
+    .tracks {
+        max-height: 50%;
+    }
+    
+    .track {
+        width: 100%;
+        height: 100%;
+    }
+}

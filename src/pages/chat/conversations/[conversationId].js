@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useRef, Fragment, useState } from "react";
+import { useEffect, useRef, Fragment, useState, useCallback } from "react";
 import { Button, Divider, Form, Modal, Segment } from "semantic-ui-react";
 import { io } from "socket.io-client";
 import { useRouter } from 'next/router';
@@ -10,10 +10,30 @@ import Link from 'next/link';
 import Carousel from '../../../components/Carousel';
 import FilePicker from '../../../components/FilePicker';
 import { useQuery, useQueryClient } from "react-query";
+import css from '../../../styles/Conversation.module.css';
 
 export default function Conversation() {
     const router = useRouter();
     const { conversationId } = router.query;
+    const [peer, socket] = useRTC(conversationId);
+    return <>
+        <Head>
+            <title>Chat - {`@${conversationId}`}</title>
+        </Head>
+        <div>
+            <div className={css['media-buttons']}>
+                <ButtonVideo peer={peer} socket={socket} />
+                <ButtonAudio peer={peer} socket={socket} />
+            </div>
+            <div className={css.container}>
+                {peer && <Tracks peer={peer} socket={socket} />}
+                <MessageChat conversationId={conversationId} />
+            </div>
+        </div>
+    </>
+}
+
+function MessageChat({ conversationId }) {
     const { data: messages, refetch } = useQuery(`/api/chat/conversations/${conversationId}`, () =>
         axios.get(`/api/chat/conversations/${conversationId}`).then(res => res.data)
     );
@@ -32,10 +52,7 @@ export default function Conversation() {
         socket.onAny(() => refetch());
         return () => socket.close();
     }, []);
-    return <>
-        <Head>
-            <title>Chat - {`@${conversationId}`}</title>
-        </Head>
+    return <div className={css.messages}>
         <div style={{ maxWidth: '700px', margin: 'auto' }}>
             <div style={{ padding: '1em', minHeight: '100vh' }}>
                 {messages?.map(m =>
@@ -47,7 +64,7 @@ export default function Conversation() {
             </div>
             <ChatForm conversationId={conversationId} />
         </div>
-    </>
+    </div>
 }
 
 function Message({ sender, text, files, createdAt }) {
@@ -180,4 +197,130 @@ function FilePickerPopup({ value, onChange, trigger }) {
             </Button>
         </Modal.Actions>
     </Modal>
+}
+
+function useRTC(conversationId) {
+    const [peer, setPeer] = useState();
+    const [socket, setSocket] = useState();
+    useEffect(() => {
+        const socket = io();
+        const peer = new RTCPeerConnection({ 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] });
+        peer.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
+            .then(async offer => {
+                await peer.setLocalDescription(offer);
+                socket.emit('chatrtc', conversationId, offer, answer => {
+                    peer.setRemoteDescription(answer);
+                });
+                peer.onnegotiationneeded = async () => {
+                    if (peer.signalingState === 'have-local-offer') return;
+                    const offer = await peer.createOffer();
+                    await peer.setLocalDescription(offer);
+                    socket.emit('negotiationneeded', offer, answer => {
+                        peer.setRemoteDescription(answer);
+                    });
+                };
+                socket.on('negotiationneeded', async (offer, _return) => {
+                    await peer.setRemoteDescription(offer);
+                    const answer = await peer.createAnswer();
+                    await peer.setLocalDescription(answer);
+                    _return(answer);
+                });
+                peer.onicecandidate = e => socket.emit('icecandidate', e.candidate);
+                socket.on('icecandidate', candidate => peer.addIceCandidate(candidate));
+            });
+        setSocket(socket);
+        setPeer(peer);
+        return () => {
+            socket.close();
+            peer.close();
+        };
+    }, [conversationId]);
+    return [peer, socket];
+}
+
+function Tracks({ peer, socket }) {
+    const [tracks, setTracks] = useState();
+    useEffect(() => {
+        setTracks([]);
+        peer.ontrack = e => {
+            setTracks(tracks => [...tracks, e.track]);
+        };
+        const onRemoveTrack = i => {
+            const removedTrack = peer.getTransceivers()[i].receiver.track;
+            setTracks(tracks => tracks.filter(t => t !== removedTrack));
+        };
+        socket.on('removetrack', onRemoveTrack);
+        return () => {
+            peer.ontrack = null;
+            socket.off('removetrack', onRemoveTrack);
+        }
+    }, [peer, socket]);
+    return <div className={css.tracks}>
+        {tracks?.map(t => <Track track={t} key={t.id} />)}
+    </div>
+}
+
+function Track({ track }) {
+    const onDOM = useCallback(dom => {
+        dom && (dom.srcObject = new MediaStream([track]))
+    }, [track]);
+    return track.kind === 'video'
+        ? <video ref={onDOM} autoPlay className={css.track} />
+        : <audio ref={onDOM} autoPlay className={css.track} />
+}
+
+function ButtonVideo({ peer, socket }) {
+    const [video, setVideo] = useState();
+    useEffect(() => {
+        if (video) {
+            const sendVideo = async () => {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const track = stream.getTracks()[0];
+                const sender = peer.addTrack(track);
+                return () => {
+                    track.stop();
+                    peer.removeTrack(sender);
+                    peer.getTransceivers().forEach((tc, i) => {
+                        tc.sender === sender && socket.emit('removetrack', i);
+                    });
+                }
+            };
+            const pCleanup = sendVideo();
+            return () => pCleanup.then(cleanup => cleanup());
+        }
+    }, [video, peer, socket]);
+    return <Button
+        onClick={() => setVideo(!video)}
+        basic
+        icon='video camera'
+        color={video && 'red'}
+    />
+}
+
+function ButtonAudio({ peer, socket }) {
+    const [audio, setAudio] = useState();
+    useEffect(() => {
+        if (audio) {
+            const sendAudio = async () => {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const track = stream.getTracks()[0];
+                const sender = peer.addTrack(track);
+                return () => {
+                    track.stop();
+                    peer.removeTrack(sender);
+                    peer.getTransceivers().forEach((tc, i) => {
+                        tc.sender === sender && socket.emit('removetrack', i);
+                    });
+                }
+            };
+            const pCleanup = sendAudio();
+            return () => pCleanup.then(cleanup => cleanup());
+        }
+    }, [audio, peer, socket]);
+    return <Button
+        onClick={() => setAudio(!audio)}
+        basic
+        icon='microphone'
+        color={audio && 'red'}
+    />
 }
