@@ -1,0 +1,34 @@
+.item {
+    color: unset;
+    display: flex;
+}
+
+.item:hover {
+    color: unset;
+}
+
+.avatar {
+    width: 2.5em;
+    height: 2.5em;
+    object-fit: cover;
+}
+
+.content {
+    margin: 0.5em;
+    flex-grow: 1;
+    align-self: stretch;
+    display: flex;
+}
+
+.summary {
+    flex-grow: 1;
+}
+
+.username {
+    font-weight: bold;
+}
+
+.time {
+    color: rgba(0,0,0,.4);
+    margin-left: 0.5em;
+}

@@ -1,9 +1,10 @@
-import { useQuery } from "react-query";
 import axios from 'axios';
 import Error from 'next/error';
-import { Feed, Header } from 'semantic-ui-react';
 import Link from 'next/link';
 import React from 'react';
+import { useQuery } from "react-query";
+import { Divider, Header } from 'semantic-ui-react';
+import css from '../styles/Notifications.module.css';
 
 export default function Notifications() {
     const { data, error, isLoading } = useQuery('/api/notifications/general', () =>
@@ -18,26 +19,53 @@ export default function Notifications() {
         />
     }
     return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
-        <Header as='h2'>Notifications</Header>
-        <Feed>
+        <Header as='h2' dividing>Notifications</Header>
+        <div>
             {data.map(n =>
-                n.type === 'follow'
-                    ? <FollowNotification {...n.follower} />
-                    : null
-            )}
-        </Feed>
+                <React.Fragment key={n._id}>
+                    {n.type === 'follow'
+                        ? <FollowNotification {...n} />
+                        : n.type === 'like'
+                            ? <LikeNotification {...n} />
+                            : null
+                    }
+                </React.Fragment>)}
+        </div>
     </div>
 }
 
-function FollowNotification({ _id, firstName, lastName, avatar }) {
-    return <Feed.Event>
-        <Feed.Label image={avatar || '/default-avatar.svg'} />
-        <Feed.Content>
-            <Feed.Summary>
-                <Link href={`/users/${_id}`}>
-                    <a>{`${firstName} ${lastName}`}</a>
-                </Link> followed you.
-            </Feed.Summary>
-        </Feed.Content>
-    </Feed.Event>
+function FollowNotification({ createdAt, follower: { _id, firstName, lastName, avatar } }) {
+    return <Link href={`/users/${_id}`}>
+        <a className={css.item}>
+            <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
+            <div className={css.content}>
+                <div className={css.summary}>
+                    <Link href={`/users/${_id}`}>
+                        <a className={css.username}>{`${firstName} ${lastName}`}</a>
+                    </Link> followed you.
+                </div>
+                <span className={css.time}>
+                    {new Date(createdAt).toLocaleString()}
+                </span>
+            </div>
+        </a>
+    </Link>
+}
+
+function LikeNotification({ postId, likeUser: { _id, firstName, lastName, avatar }, createdAt }) {
+    return <Link href={`/posts/${postId}`}>
+        <a className={css.item}>
+            <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
+            <div className={css.content}>
+                <div className={css.summary}>
+                    <Link href={`/users/${_id}`}>
+                        <a className={css.username}>{`${firstName} ${lastName}`}</a>
+                    </Link> liked your post.
+                </div>
+                <span className={css.time}>
+                    {new Date(createdAt).toLocaleString()}
+                </span>
+            </div>
+        </a>
+    </Link>
 }

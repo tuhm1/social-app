@@ -27,11 +27,14 @@ app
             {
                 $match: {
                     userId: mongoose.Types.ObjectId(req.user),
-                    type: { $in: ['follow'] }
+                    type: { $in: ['follow', 'like'] }
                 }
             },
+            { $sort: { createdAt: -1, _id: -1 } },
             { $lookup: { from: 'users', localField: 'followerId', foreignField: '_id', as: 'follower' } },
-            { $set: { follower: { $arrayElemAt: ['$follower', 0] } } }
+            { $set: { follower: { $arrayElemAt: ['$follower', 0] } } },
+            { $lookup: { from: 'users', localField: 'likeUserId', foreignField: '_id', as: 'likeUser' } },
+            { $set: { likeUser: { $arrayElemAt: ['$likeUser', 0] } } },
         ]).then(result => {
             res.json(result);
         }).catch(error => {
