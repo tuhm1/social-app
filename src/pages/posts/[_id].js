@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import {
     Button,
     Comment, Container,
@@ -130,18 +131,9 @@ function CommentSection({ postId }) {
 }
 
 function RootComments({ postId, onReply }) {
-    const [data, setData] = useState();
-    useEffect(() => {
-        const fetchComments = async () => {
-            const { data } = await axios.get(`/api/comments`, { params: { postId } })
-            setData(data);
-        }
-        fetchComments();
-        const socket = io();
-        socket.onAny(() => fetchComments());
-        return () => socket.close();
-    }, [postId]);
-
+    const { data } = useQuery(`/api/comments/post/${postId}`, () =>
+        axios.get(`/api/comments/post/${postId}`).then(res => res.data)
+    );
     if (!data) return <CommentsPlaceHolder />;
     return <>
         <CommentForm postId={postId} />
@@ -163,24 +155,16 @@ function RootComments({ postId, onReply }) {
 }
 
 function Replies({ postId, replyTo, onBack, onReply }) {
-    const [data, setData] = useState();
-    useEffect(() => {
-        const fetchComments = async () => {
-            const { data } = await axios.get(`/api/comments`, { params: { replyTo } })
-            setData(data);
-        }
-        fetchComments();
-        const socket = io();
-        socket.onAny(() => fetchComments());
-        return () => socket.close();
-    }, [replyTo]);
+    const { data } = useQuery(`/api/comments/comment/${replyTo}`, () =>
+        axios.get(`/api/comments/comment/${replyTo}`).then(res => res.data)
+    );
     if (!data) return <CommentsPlaceHolder />;
     const { text, replyTo: parent, user, replies } = data[0];
     return <Comment>
         <Header>
             <Button basic icon='angle left' onClick={() => onBack(parent)} />
-                Replies
-            </Header>
+            Replies
+        </Header>
         <CommentAvatar src={user.avatar} />
         <Comment.Content>
             <CommentAuthor {...user} />
@@ -231,6 +215,7 @@ function CommentsPlaceHolder() {
 
 function CommentForm({ postId, replyTo }) {
     const [response, setResponse] = useState({ status: 'idle' });
+    const queryClient = useQueryClient();
     const onSubmit = e => {
         e.preventDefault();
         setResponse({ status: 'loading' });
@@ -240,6 +225,8 @@ function CommentForm({ postId, replyTo }) {
                 e.target.reset();
             }).catch(error => {
                 setResponse({ status: 'error', error });
+            }).finally(() => {
+                queryClient.invalidateQueries();
             });
     }
     return <Form
@@ -266,12 +253,12 @@ function PostNotFound() {
         <Segment placeholder>
             <Header icon>
                 <Icon name='search' />
-            Post not found
-        </Header>
+                Post not found
+            </Header>
             <Segment.Inline>
                 <Button primary onClick={() => router.back()}>
                     Go back
-            </Button>
+                </Button>
             </Segment.Inline>
         </Segment>
     </Container>

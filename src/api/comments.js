@@ -6,53 +6,51 @@ module.exports = io => {
     const mongoose = require('mongoose');
     const app = express.Router();
     app
-        .get('/', async (req, res) => {
-            const { postId, replyTo } = req.query;
-            if (replyTo) {
-                const data = await Comment.aggregate([
-                    { $match: { _id: mongoose.Types.ObjectId(replyTo) } },
-                    { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
-                    {
-                        $lookup: {
-                            from: 'comments', let: { replyTo: '$_id' }, as: 'replies',
-                            pipeline: [
-                                { $match: { $expr: { $eq: ['$replyTo', '$$replyTo'] } } },
-                                { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
-                                { $lookup: { from: 'comments', localField: '_id', foreignField: 'replyTo', as: 'replies' } },
-                                {
-                                    $set: {
-                                        user: { $arrayElemAt: ['$users', 0] },
-                                        repliesCount: { $size: '$replies' }
-                                    }
+        .get('/post/:postId', async (req, res) => {
+            const data = await Comment.aggregate([
+                { $match: { postId: mongoose.Types.ObjectId(req.params.postId), replyTo: null } },
+                { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
+                { $lookup: { from: 'comments', localField: '_id', foreignField: 'replyTo', as: 'replies' } },
+                { $set: { user: { $arrayElemAt: ['$users', 0] } } },
+                {
+                    $project: {
+                        text: 1, 'user.firstName': 1, 'user.lastName': 1, 'user.avatar': 1, 'user._id': 1,
+                        repliesCount: { $size: '$replies' }
+                    }
+                }
+            ]);
+            res.json(data);
+        })
+        .get('/comment/:commentId', async (req, res) => {
+            const data = await Comment.aggregate([
+                { $match: { _id: mongoose.Types.ObjectId(req.params.commentId) } },
+                { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
+                {
+                    $lookup: {
+                        from: 'comments', let: { replyTo: '$_id' }, as: 'replies',
+                        pipeline: [
+                            { $match: { $expr: { $eq: ['$replyTo', '$$replyTo'] } } },
+                            { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
+                            { $lookup: { from: 'comments', localField: '_id', foreignField: 'replyTo', as: 'replies' } },
+                            {
+                                $set: {
+                                    user: { $arrayElemAt: ['$users', 0] },
+                                    repliesCount: { $size: '$replies' }
                                 }
-                            ]
-                        }
-                    },
-                    { $set: { user: { $arrayElemAt: ['$users', 0] } } },
-                    {
-                        $project: {
-                            text: 1, replyTo: 1, 'user.firstName': 1, 'user.lastName': 1, 'user.avatar': 1, 'user._id': 1,
-                            'replies._id': 1, 'replies.text': 1, 'replies.repliesCount': 1,
-                            'replies.user._id': 1, 'replies.user.firstName': 1, 'replies.user.lastName': 1, 'replies.user.avatar': 1,
-                        }
+                            }
+                        ]
                     }
-                ]);
-                res.json(data);
-            } else {
-                const data = await Comment.aggregate([
-                    { $match: { postId: mongoose.Types.ObjectId(postId), replyTo: null } },
-                    { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
-                    { $lookup: { from: 'comments', localField: '_id', foreignField: 'replyTo', as: 'replies' } },
-                    { $set: { user: { $arrayElemAt: ['$users', 0] } } },
-                    {
-                        $project: {
-                            text: 1, 'user.firstName': 1, 'user.lastName': 1, 'user.avatar': 1, 'user._id': 1,
-                            repliesCount: { $size: '$replies' }
-                        }
+                },
+                { $set: { user: { $arrayElemAt: ['$users', 0] } } },
+                {
+                    $project: {
+                        text: 1, replyTo: 1, 'user.firstName': 1, 'user.lastName': 1, 'user.avatar': 1, 'user._id': 1,
+                        'replies._id': 1, 'replies.text': 1, 'replies.repliesCount': 1,
+                        'replies.user._id': 1, 'replies.user.firstName': 1, 'replies.user.lastName': 1, 'replies.user.avatar': 1,
                     }
-                ]);
-                res.json(data);
-            }
+                }
+            ]);
+            res.json(data);
         })
         .post('/:postId', async (req, res) => {
             if (!req.user) {
