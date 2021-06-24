@@ -56,7 +56,7 @@ module.exports = io => {
         })
         .post('/:postId', async (req, res) => {
             if (!req.user) {
-                return res.status(400).json({message: 'user not logged in'});
+                return res.status(400).json({ message: 'user not logged in' });
             }
             const userId = mongoose.Types.ObjectId(req.user);
             const postId = mongoose.Types.ObjectId(req.params.postId);
@@ -87,6 +87,18 @@ module.exports = io => {
                     createdAt: comment.createdAt
                 });
                 io.to(post.userId).emit('notification', notification);
+            } else {
+                const pTargetComment = Comment.findById(replyTo);
+                const [target, reply] = await Promise.all([pTargetComment, pComment]);
+                if (target.userId.equals(userId)) return;
+                const notification = await Notification.create({
+                    userId: target.userId,
+                    type: 'reply',
+                    postId,
+                    replyUserId: userId,
+                    createdAt: reply.createdAt
+                });
+                io.to(target.userId).emit('notification', notification);
             }
         })
     return app;

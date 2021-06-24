@@ -27,7 +27,7 @@ app
             {
                 $match: {
                     userId: mongoose.Types.ObjectId(req.user),
-                    type: { $in: ['follow', 'like', 'comment'] }
+                    type: { $in: ['follow', 'like', 'comment', 'reply'] }
                 }
             },
             { $sort: { createdAt: -1, _id: -1 } },
@@ -37,6 +37,8 @@ app
             { $set: { likeUser: { $arrayElemAt: ['$likeUser', 0] } } },
             { $lookup: { from: 'users', localField: 'commentUserId', foreignField: '_id', as: 'commentUser' } },
             { $set: { commentUser: { $arrayElemAt: ['$commentUser', 0] } } },
+            { $lookup: { from: 'users', localField: 'replyUserId', foreignField: '_id', as: 'replyUser' } },
+            { $set: { replyUser: { $arrayElemAt: ['$replyUser', 0] } } },
         ]).then(result => {
             res.json(result);
         }).catch(error => {
