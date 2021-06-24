@@ -234,7 +234,7 @@ function CommentForm({ postId, replyTo }) {
     const onSubmit = e => {
         e.preventDefault();
         setResponse({ status: 'loading' });
-        axios.post(`/api/comments`, { text: e.target.text.value, postId, replyTo })
+        axios.post(`/api/comments/${postId}`, { text: e.target.text.value, replyTo })
             .then(() => {
                 setResponse({ status: 'success' });
                 e.target.reset();

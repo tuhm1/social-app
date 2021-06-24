@@ -27,8 +27,11 @@ export default function Notifications() {
                         ? <FollowNotification {...n} />
                         : n.type === 'like'
                             ? <LikeNotification {...n} />
-                            : null
+                            : n.type === 'comment'
+                                ? <CommentNotification {...n} />
+                                : null
                     }
+                    <Divider />
                 </React.Fragment>)}
         </div>
     </div>
@@ -61,6 +64,24 @@ function LikeNotification({ postId, likeUser: { _id, firstName, lastName, avatar
                     <Link href={`/users/${_id}`}>
                         <a className={css.username}>{`${firstName} ${lastName}`}</a>
                     </Link> liked your post.
+                </div>
+                <span className={css.time}>
+                    {new Date(createdAt).toLocaleString()}
+                </span>
+            </div>
+        </a>
+    </Link>
+}
+
+function CommentNotification({ postId, commentUser: { _id, firstName, lastName, avatar }, createdAt }) {
+    return <Link href={`/posts/${postId}`}>
+        <a className={css.item}>
+            <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
+            <div className={css.content}>
+                <div className={css.summary}>
+                    <Link href={`/users/${_id}`}>
+                        <a className={css.username}>{`${firstName} ${lastName}`}</a>
+                    </Link> commented on your post.
                 </div>
                 <span className={css.time}>
                     {new Date(createdAt).toLocaleString()}

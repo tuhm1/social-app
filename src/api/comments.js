@@ -1,6 +1,8 @@
 module.exports = io => {
     const express = require('express');
     const Comment = require('../db/comment');
+    const Post = require('../db/post');
+    const Notification = require('../db/notification');
     const mongoose = require('mongoose');
     const app = express.Router();
     app
@@ -52,21 +54,39 @@ module.exports = io => {
                 res.json(data);
             }
         })
-        .post('/', async (req, res) => {
-            try {
-                const comment = await Comment.create({
-                    postId: req.body.postId,
-                    replyTo: req.body.replyTo,
-                    userId: req.user,
-                    text: req.body.text
+        .post('/:postId', async (req, res) => {
+            if (!req.user) {
+                return res.status(400).json({message: 'user not logged in'});
+            }
+            const userId = mongoose.Types.ObjectId(req.user);
+            const postId = mongoose.Types.ObjectId(req.params.postId);
+            const replyTo = req.body.replyTo && mongoose.Types.ObjectId(req.body.replyTo);
+            const pComment = Comment.create({
+                postId,
+                replyTo,
+                userId,
+                text: req.body.text
+            });
+            pComment.then(() => res.sendStatus(200))
+                .catch(err => {
+                    if (err instanceof mongoose.Error.ValidationError)
+                        res.status(400).json(err);
+                    else
+                        res.status(500).json(err);
                 });
-                res.sendStatus(200);
-                io.emit('comment', comment);
-            } catch (err) {
-                if (err instanceof mongoose.Error.ValidationError)
-                    res.status(400).json(err);
-                else
-                    res.status(500).json(err);
+
+            if (!replyTo) {
+                const pPost = Post.findById(postId);
+                const [post, comment] = await Promise.all([pPost, pComment]);
+                if (post.userId.equals(userId)) return;
+                const notification = await Notification.create({
+                    userId: post.userId,
+                    type: 'comment',
+                    postId,
+                    commentUserId: userId,
+                    createdAt: comment.createdAt
+                });
+                io.to(post.userId).emit('notification', notification);
             }
         })
     return app;
