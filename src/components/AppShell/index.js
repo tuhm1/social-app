@@ -27,6 +27,7 @@ export default function AppShell({ currentUserId, children }) {
                         onClick={() => setSidebar(!sidebar)}
                     />
                     <Menu.Item header>Socialize</Menu.Item>
+                    <NotificationItem />
                 </Container>
             </Menu>
             <Sidebar
@@ -78,10 +79,6 @@ function SidebarMenu(props) {
                         {notSeenConversations?.length > 0 && <Label color='red'>{notSeenConversations.length}</Label>}
                     </Menu.Item>
                 </Link>
-                <Menu.Item as='a'>
-                    <Icon name='bell' />
-                    Notification
-                </Menu.Item>
                 <Link href='/people'>
                     <Menu.Item as='a' icon='group' name='People' />
                 </Link>
@@ -94,6 +91,22 @@ function SidebarMenu(props) {
     </Menu>
 }
 
+function NotificationItem() {
+    const { data: count } = useQuery('/api/notifications/general/count', () =>
+        axios.get('/api/notifications/general/count').then(res => res.data)
+    );
+    return <Link href='/notifications'>
+        <Menu.Item as='a' position='right'>
+            <Icon name='bell' style={{ position: 'relative' }}>
+                {count > 0
+                    && <Label color='red' floating circular size='mini'>
+                        {count}
+                    </Label>
+                }
+            </Icon>
+        </Menu.Item>
+    </Link>
+}
 function useMediaMatch(query) {
     const [matches, setMatches] = useState(false);
     useEffect(() => {

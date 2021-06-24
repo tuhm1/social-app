@@ -1,18 +1,24 @@
 module.exports = io => {
     const express = require('express');
     const Follow = require('../db/follow');
+    const Notification = require('../db/notification');
     const app = express();
     const mongoose = require('mongoose');
 
     app
         .post('/:followingId', async (req, res) => {
             try {
-                const follow = await Follow.create({
-                    followerId: req.user,
-                    followingId: req.params.followingId
-                });
+                const followerId = req.user;
+                const followingId = req.params.followingId;
+                const follow = await Follow.create({ followerId, followingId });
                 res.sendStatus(200);
-                io.emit('follow/create', follow);
+                const notification = await Notification.create({
+                    userId: followingId,
+                    type: 'follow',
+                    followerId: mongoose.Types.ObjectId(followerId),
+                    createdAt: follow.createdAt
+                });
+                io.to(followerId).emit('notification', notification);
             } catch (err) {
                 if (err instanceof mongoose.Error.ValidationError) {
                     res.status(400).json(err);
@@ -26,7 +32,7 @@ module.exports = io => {
                 const followingId = req.params.followingId;
                 const followerId = req.user;
                 await Follow.deleteOne({ followingId, followerId });
-                io.emit('follow/delete', { followerId, followingId });
+                res.sendStatus(200);
             } catch (err) {
                 if (err instanceof mongoose.Error.ValidationError) {
                     res.status(400).json(err);
