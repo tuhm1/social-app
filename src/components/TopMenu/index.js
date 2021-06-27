@@ -20,6 +20,7 @@ export default function TopMenu({ children }) {
             <Menu
                 size='large'
                 inverted
+                color='teal'
                 style={{ margin: 0 }}
             >
                 <Container>
