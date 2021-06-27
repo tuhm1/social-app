@@ -56,7 +56,8 @@ app
                     ),
                     {
                         $project: {
-                            _id: 1, text: 1, files: 1, 'user._id': 1, 'user.avatar': 1,
+                            _id: 1, text: 1, files: 1, createdAt: 1,
+                            'user._id': 1, 'user.avatar': 1,
                             'user.firstName': 1, 'user.lastName': 1,
                             likesCount: { $size: '$likes' },
                             liked: 1,
