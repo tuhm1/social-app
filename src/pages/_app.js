@@ -1,14 +1,14 @@
 import 'semantic-ui-css/semantic.min.css';
-import AppShell from '../components/AppShell';
+import TopNav from '../components/TopMenu';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
 const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }) {
   return <QueryClientProvider client={queryClient}>
-    <AppShell currentUserId={pageProps.currentUserId}>
+    <TopNav>
       <Component {...pageProps} />
-    </AppShell>
+    </TopNav>
   </QueryClientProvider>
 }
 
