@@ -1,5 +1,4 @@
 import axios from 'axios';
-import mongoose from "mongoose";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -10,82 +9,67 @@ import {
     Divider, Form, Header, Icon,
     Message, Placeholder, Segment
 } from "semantic-ui-react";
-import io from 'socket.io-client';
-import Carousel from '../../components/Carousel';
+import Carousel from '../../../components/Carousel';
+import css from '../../../styles/PostDetails.module.css';
 
-export async function getServerSideProps({ req, params: { _id } }) {
-    const { Post } = req.app.get('dbContext');
-    const result = await Post.aggregate([
-        { $match: { _id: mongoose.Types.ObjectId(_id) } },
-        { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
-        { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
-        { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
-        { $set: { user: { $arrayElemAt: ['$users', 0] } } },
-        {
-            $project: {
-                _id: 1, text: 1, files: 1, 'user._id': 1, 'user.avatar': 1,
-                'user.firstName': 1, 'user.lastName': 1, 'likes.userId': 1,
-                'commentsCount': { $size: '$comments' }
-            }
-        }
-    ]);
-    const post = result.length > 0 ? result[0] : null;
-    return {
-        props: {
-            currentUserId: req.user ?? null,
-            post: JSON.parse(JSON.stringify(post))
-        }
-    };
-}
-
-export default function Post({ post, currentUserId }) {
+export default function Post() {
     const router = useRouter();
-    useEffect(() => {
-        const socket = io();
-        socket.onAny(() => {
-            router.replace(router.asPath, undefined, { scroll: false });
-        });
-        return () => socket.close();
-    }, []);
+    const { _id } = router.query;
+    const { data: post, isLoading } = useQuery(`/api/posts/details/${_id}`, () =>
+        axios.get(`/api/posts/details/${_id}`).then(res => res.data)
+    );
+    const { data: currentUserId } = useQuery('/api/auth/me', () =>
+        axios.get('/api/auth/me').then(res => res.data)
+    );
+    if (isLoading) return null;
+    if (!post) return <PostNotFound />
 
-    if (!post) {
-        return <PostNotFound />
-    }
-    const { _id, text, files, user, likes, commentsCount } = post;
-    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
-        <Segment>
-            <img src={user.avatar || '/default-avatar.svg'}
-                style={{ height: '3em', width: '3em', borderRadius: '50%', objectFit: 'cover', verticalAlign: 'middle', marginRight: '0.5em' }}
-            />
-            <Link href={`/users/${user._id}`}>
-                <a style={{ fontSize: 'large' }}>
-                    {`${user.firstName} ${user.lastName}`}
-                </a>
-            </Link>
-            <p style={{ fontSize: 'large' }}>
+    const { text, files, user, likes, commentsCount, createdAt } = post;
+    return <div className={css.container}>
+        {files?.length > 0 &&
+            <div className={css.media}>
+                <Carousel files={files} />
+            </div>
+        }
+        <div className={css.text}>
+            <div className={css.textHeader}>
+                <img src={user.avatar || '/default-avatar.svg'} className={css.avatar} />
+                <div className={css.textHeaderTitle}>
+                    <Link href={`/users/${user._id}`}>
+                        <a className={css.username}>
+                            {`${user.firstName} ${user.lastName}`}
+                        </a>
+                    </Link>
+                    <div className={css.time}>
+                        {new Date(createdAt).toLocaleString()}
+                    </div>
+                </div>
+            </div>
+            <p>
                 {text}
             </p>
-            {files?.length > 0 && <Carousel files={files} />}
             <div>
                 <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
                 <Button basic icon='comment' content={commentsCount} />
             </div>
-        </Segment>
-        <CommentSection postId={_id} />
+            <CommentSection postId={_id} />
+        </div>
     </div>
 }
 
 function LikeButton({ postId, likes, currentUserId }) {
     const [response, setResponse] = useState({ status: 'idle' });
+    const queryClient = useQueryClient();
     const liked = likes.some(l => l.userId === currentUserId);
     if (liked) {
         const onClick = () => {
             setResponse({ status: 'loading' });
             axios.delete(`/api/likes/${postId}`)
-                .then(() => {
-                    setResponse({ status: 'success' });
-                }).catch(error => {
-                    setResponse({ status: 'error', error });
+                .catch(error => {
+                    alert(error.response?.data.message || error.message);
+                }).finally(() => {
+                    setResponse({ status: 'idle' });
+                    queryClient.invalidateQueries();
                 });
         };
         return <Button
@@ -98,10 +82,11 @@ function LikeButton({ postId, likes, currentUserId }) {
     const onClick = () => {
         setResponse({ status: 'loading' });
         axios.post(`/api/likes/${postId}`)
-            .then(() => {
-                setResponse({ status: 'success' });
-            }).catch(error => {
-                setResponse({ status: 'error', error });
+            .catch(error => {
+                alert(error.response?.data.message || error.message);
+            }).finally(() => {
+                setResponse({ status: 'idle' });
+                queryClient.invalidateQueries();
             });
     };
     return <Button
@@ -116,7 +101,7 @@ function LikeButton({ postId, likes, currentUserId }) {
 function CommentSection({ postId }) {
     const [root, setRoot] = useState({ postId });
     useEffect(() => setRoot({ postId }), [postId]);
-    return <Comment.Group size='large' id='comments'>
+    return <Comment.Group id='comments'>
         <Header dividing>Comments</Header>
         {root.postId
             ? <RootComments postId={postId} onReply={_id => setRoot({ replyTo: _id })} />

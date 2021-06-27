@@ -1,0 +1,59 @@
+.container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.media {
+    flex-grow: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+}
+
+.media > * {
+    width: 100%;
+}
+
+.text {
+    padding: 1em;
+    flex-grow: 1;
+    flex-basis: 0;
+    max-width: 700px;
+    overflow: auto;
+}
+
+.textHeader {
+    display: flex;
+    
+}
+
+.avatar {
+    width: 3em;
+    height: 3em;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.textHeaderTitle {
+    margin-left: 0.5em;
+}
+
+.username {
+    font-weight: bold;
+}
+
+.time {
+    color: rgba(0,0,0,.4)
+}
+
+@media screen and (max-width: 600px) {
+    .container {
+        flex-direction: column;
+    }
+    .media {
+        flex-basis: 0;
+        flex-grow: 1;
+    }
+}

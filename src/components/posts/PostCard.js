@@ -6,24 +6,29 @@ import { Button } from 'semantic-ui-react';
 import { useState } from 'react';
 import axios from 'axios';
 
-export default function PostCard({ _id, text, files, user, likesCount, liked, commentsCount }) {
+export default function PostCard({ _id, text, files, user, likesCount, liked, commentsCount, createdAt }) {
     return <div className={'ui segment ' + css.post}>
-        <Link href={`/posts/${_id}`}>
+        <Link href={`/posts/details/${_id}`}>
             <a className={css.stretchedLink} />
         </Link>
         <div className={css.header}>
             <img src={user.avatar || '/default-avatar.svg'} className={css.avatar} />
-            <Link href={`/users/${user._id}`}>
-                <a className={css.username}>
-                    {`${user.firstName} ${user.lastName}`}
-                </a>
-            </Link>
+            <div className={css.headerTitle}>
+                <Link href={`/users/${user._id}`}>
+                    <a className={css.username}>
+                        {`${user.firstName} ${user.lastName}`}
+                    </a>
+                </Link>
+                <div className={css.time}>
+                    {new Date(createdAt).toLocaleString()}
+                </div>
+            </div>
         </div>
         <p className={css.text}>
             {text.slice(0, 200)}
             {text.length > 200
                 && <>...
-                <Link href={`/posts/${_id}`}>
+                    <Link href={`/posts/details/${_id}`}>
                         <a>More</a>
                     </Link>
                 </>
@@ -32,7 +37,7 @@ export default function PostCard({ _id, text, files, user, likesCount, liked, co
         {files?.length > 0 && <Carousel files={files} className={css.carousel} />}
         <div className={css.buttons}>
             <LikeButton postId={_id} likesCount={likesCount} liked={liked} />
-            <Link href={`/posts/${_id}`}>
+            <Link href={`/posts/details/${_id}`}>
                 <Button icon='comment' content={commentsCount} basic />
             </Link>
         </div>
