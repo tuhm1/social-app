@@ -30,7 +30,8 @@ module.exports = io => {
             try {
                 const followingId = req.params.followingId;
                 const followerId = req.user;
-                await Follow.deleteOne({ followingId, followerId });
+                const follow = await Follow.findOne({ followingId, followerId });
+                await follow.remove();
                 res.sendStatus(200);
             } catch (err) {
                 if (err instanceof mongoose.Error.ValidationError) {

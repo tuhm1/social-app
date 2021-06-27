@@ -6,5 +6,16 @@ const schema = new mongoose.Schema({
 }, { timestamps: true });
 schema.index({ followingId: 1, followerId: 1 }, { unique: true });
 schema.plugin(mongooseDelete);
+schema.pre('remove', async function (next) {
+    try {
+        const notification = await mongoose.models.notification.findOne({ followId: this._id });
+        if (notification) {
+            await notification.remove();
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 const Follow = mongoose.model('follow', schema);
 module.exports = Follow;
