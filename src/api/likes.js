@@ -30,12 +30,12 @@ module.exports = io => {
             return res.status(401).json({ message: 'You are not logged in' });
         }
         try {
-            await Like.deleteOne({
+            const like = await Like.findOne({
                 postId: req.params.postId,
                 userId: req.user
             });
+            await like.remove();
             res.sendStatus(200);
-            io.emit('unlike', req.params.postId);
         } catch (error) {
             res.status(400).json(error);
         }

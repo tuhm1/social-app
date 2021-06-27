@@ -6,5 +6,16 @@ const schema = new mongoose.Schema({
 }, { timestamps: true });
 schema.index({ postId: 1, userId: 1 }, { unique: true });
 schema.plugin(mongooseDelete);
+schema.pre('remove', async function (next) {
+    try {
+        const notification = await mongoose.models.notification.findOne({ likeId: this._id });
+        if (notification) {
+            await notification.remove();
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 const Like = mongoose.model('like', schema);
 module.exports = Like;
