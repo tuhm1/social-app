@@ -20,6 +20,10 @@ module.exports = io => {
                 { $sort: { createdAt: -1, _id: -1 } },
                 { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
                 { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
+                ...(req.user
+                    ? [{ $set: { liked: { $in: [userId, '$likes'] } } }]
+                    : []
+                ),
                 { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
                 { $set: { user: { $arrayElemAt: ['$users', 0] } } },
                 {
@@ -27,6 +31,8 @@ module.exports = io => {
                         _id: 1, text: 1, files: 1, createdAt: 1,
                         'user._id': 1, 'user.avatar': 1,
                         'user.firstName': 1, 'user.lastName': 1, 'likes.userId': 1,
+                        likesCount: { $size: '$likes' },
+                        liked: 1,
                         commentsCount: { $size: '$comments' }
                     }
                 }
@@ -37,14 +43,19 @@ module.exports = io => {
             if (!req.user) {
                 return res.sendStatus(401);
             }
-            const posts = await Follow.aggregate([
-                { $match: { followerId: mongoose.Types.ObjectId(req.user) } },
+            const userId = mongoose.Types.ObjectId(req.user);
+            Follow.aggregate([
+                { $match: { followerId: userId } },
                 { $lookup: { from: 'posts', localField: 'followingId', foreignField: 'userId', as: 'posts' } },
                 { $unwind: '$posts' },
                 { $replaceRoot: { newRoot: '$posts' } },
                 { $sort: { createdAt: -1, _id: -1 } },
                 { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
                 { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
+                ...(req.user
+                    ? [{ $set: { liked: { $in: [userId, '$likes'] } } }]
+                    : []
+                ),
                 { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
                 { $set: { user: { $arrayElemAt: ['$users', 0] } } },
                 {
@@ -52,11 +63,16 @@ module.exports = io => {
                         _id: 1, text: 1, files: 1, createdAt: 1,
                         'user._id': 1, 'user.avatar': 1,
                         'user.firstName': 1, 'user.lastName': 1, 'likes.userId': 1,
+                        likesCount: { $size: '$likes' },
+                        liked: 1,
                         commentsCount: { $size: '$comments' }
                     }
                 }
-            ]);
-            res.json(posts);
+            ]).then(posts => {
+                res.json(posts);
+            }).catch(error => {
+                res.sendStatus(500);
+            });
         })
         .get('/details/:_id', (req, res) => {
             Post.aggregate([
