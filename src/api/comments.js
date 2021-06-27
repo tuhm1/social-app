@@ -99,5 +99,41 @@ module.exports = io => {
                 io.to(target.userId).emit('notification', notification);
             }
         })
+        .put('/:commentId', (req, res) => {
+            if (!req.user) {
+                return res.status(403).json({ message: 'Unauthorized' });
+            }
+            if (!req.body.text) {
+                return res.status(400).json({ message: 'Comment text required' });
+            }
+            Comment.findById(req.params.commentId)
+                .then(comment => {
+                    if (!comment.userId.equals(mongoose.Types.ObjectId(req.user))) {
+                        return res.status(403).json({ message: 'Unauthorized' });
+                    }
+                    comment.text = req.body.text;
+                    return comment.save();
+                }).then(comment => {
+                    res.json(comment);
+                }).catch(error => {
+                    res.sendStatus(500);
+                });
+        })
+        .delete('/:commentId', (req, res) => {
+            if (!req.user) {
+                return res.status(403).json({ message: 'Unauthorized' });
+            }
+            Comment.findById(req.params.commentId)
+                .then(comment => {
+                    if (!comment.userId.equals(mongoose.Types.ObjectId(req.user))) {
+                        return res.status(403).json({ message: 'Unauthorized' });
+                    }
+                    return comment.remove();
+                }).then(() => {
+                    res.sendStatus(200);
+                }).catch(error => {
+                    res.sendStatus(500);
+                });
+        })
     return app;
 }

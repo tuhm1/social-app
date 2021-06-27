@@ -7,7 +7,9 @@ import {
     Button,
     Comment, Container,
     Divider, Form, Header, Icon,
-    Message, Placeholder, Segment
+    Message, Placeholder, Segment,
+    Modal,
+    TextArea
 } from "semantic-ui-react";
 import Carousel from '../../../components/Carousel';
 import css from '../../../styles/PostDetails.module.css';
@@ -52,7 +54,7 @@ export default function Post() {
                 <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
                 <Button basic icon='comment' content={commentsCount} />
             </div>
-            <CommentSection postId={_id} />
+            <CommentSection postId={_id} currentUserId={currentUserId} />
         </div>
     </div>
 }
@@ -98,24 +100,29 @@ function LikeButton({ postId, likes, currentUserId }) {
     />
 }
 
-function CommentSection({ postId }) {
+function CommentSection({ postId, currentUserId }) {
     const [root, setRoot] = useState({ postId });
     useEffect(() => setRoot({ postId }), [postId]);
     return <Comment.Group id='comments'>
         <Header dividing>Comments</Header>
         {root.postId
-            ? <RootComments postId={postId} onReply={_id => setRoot({ replyTo: _id })} />
+            ? <RootComments
+                postId={postId}
+                onReply={_id => setRoot({ replyTo: _id })}
+                currentUserId={currentUserId}
+            />
             : <Replies
                 postId={postId}
                 replyTo={root.replyTo}
                 onBack={replyTo => setRoot(replyTo ? { replyTo } : { postId })}
                 onReply={_id => setRoot({ replyTo: _id })}
+                currentUserId={currentUserId}
             />
         }
     </Comment.Group>
 }
 
-function RootComments({ postId, onReply }) {
+function RootComments({ postId, onReply, currentUserId }) {
     const { data } = useQuery(`/api/comments/post/${postId}`, () =>
         axios.get(`/api/comments/post/${postId}`).then(res => res.data)
     );
@@ -132,6 +139,12 @@ function RootComments({ postId, onReply }) {
                         <Comment.Action onClick={() => onReply(_id)}>
                             {`Reply ${repliesCount > 0 ? ` (${repliesCount})` : ''}`}
                         </Comment.Action>
+                        {currentUserId === user._id
+                            && <>
+                                <EditComment _id={_id} />
+                                <DeleteComment _id={_id} />
+                            </>
+                        }
                     </Comment.Actions>
                 </Comment.Content>
             </Comment>
@@ -139,7 +152,7 @@ function RootComments({ postId, onReply }) {
     </>
 }
 
-function Replies({ postId, replyTo, onBack, onReply }) {
+function Replies({ postId, replyTo, onBack, onReply, currentUserId }) {
     const { data } = useQuery(`/api/comments/comment/${replyTo}`, () =>
         axios.get(`/api/comments/comment/${replyTo}`).then(res => res.data)
     );
@@ -167,6 +180,12 @@ function Replies({ postId, replyTo, onBack, onReply }) {
                                 <Comment.Action onClick={() => onReply(_id)}>
                                     {`Reply${repliesCount > 0 ? ` (${repliesCount})` : ''}`}
                                 </Comment.Action>
+                                {currentUserId === user._id
+                                    && <>
+                                        <EditComment _id={_id} />
+                                        <DeleteComment _id={_id} />
+                                    </>
+                                }
                             </Comment.Actions>
                         </Comment.Content>
                     </Comment>
@@ -247,4 +266,51 @@ function PostNotFound() {
             </Segment.Inline>
         </Segment>
     </Container>
+}
+
+function EditComment({ _id, text }) {
+    const [open, setOpen] = useState(false);
+    const queryClient = useQueryClient();
+    const onSubmit = e => {
+        e.preventDefault();
+        axios.put(`/api/comments/${_id}`, { text: e.target.text.value })
+            .then(() => {
+                setOpen(false);
+            }).catch(error => {
+                alert(error.response?.data.message || error.message);
+            }).finally(() => {
+                queryClient.invalidateQueries();
+            });
+    }
+    return <Modal
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
+        open={open}
+        trigger={<Comment.Action>Edit</Comment.Action>}
+    >
+        <Modal.Header>Edit comment</Modal.Header>
+        <Modal.Content>
+            <Form onSubmit={onSubmit}>
+                <Form.TextArea defaultValue={text} name='text' required />
+                <Button type='submit' primary>Save</Button>
+            </Form>
+        </Modal.Content>
+    </Modal>
+}
+
+function DeleteComment({ _id }) {
+    const queryClient = useQueryClient();
+    const onClick = () => {
+        if (confirm('Are you sure you want to delete this comment?')) {
+            axios.delete(`/api/comments/${_id}`)
+                .catch(error => {
+                    alert(error.response?.data.message || error.message);
+                }).finally(() => {
+                    queryClient.invalidateQueries();
+                });
+        }
+    }
+    return <Comment.Action onClick={onClick}>
+        Delete
+    </Comment.Action>
 }
