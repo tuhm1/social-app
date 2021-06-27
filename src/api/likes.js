@@ -22,10 +22,8 @@ module.exports = io => {
         const notification = await Notification.create({
             userId: post.userId,
             type: 'like',
-            likeUserId: userId,
-            postId: postId,
-            createdAt: like.createdAt
-        })
+            likeId: like._id
+        });
         io.to(post.userId).emit('notification', notification);
     }).delete('/:postId', async (req, res) => {
         if (!req.user) {

@@ -52,9 +52,7 @@ export default function TopMenu({ children }) {
                     <>
                         <MessageItem />
                         <NotificationItem />
-                        <Link href='/people'>
-                            <Menu.Item as='a' icon='group' name='People' />
-                        </Link>
+                        <PeopleItem />
                         <Link href={`/users/${currentUserId}`}>
                             <Menu.Item as='a' icon='user' content='Profile' />
                         </Link>
@@ -100,6 +98,24 @@ function MessageItem() {
                 }
             </Icon>
             Message
+        </Menu.Item>
+    </Link>
+}
+
+function PeopleItem() {
+    const { data: count } = useQuery('/api/notifications/follow/count', () =>
+        axios.get('/api/notifications/follow/count').then(res => res.data)
+    );
+    return <Link href='/people'>
+        <Menu.Item as='a'>
+            <Icon name='group' style={{ position: 'relative' }}>
+                {count > 0
+                    && <Label color='red' floating circular size='mini'>
+                        {count}
+                    </Label>
+                }
+            </Icon>
+            People
         </Menu.Item>
     </Link>
 }

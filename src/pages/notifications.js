@@ -23,13 +23,11 @@ export default function Notifications() {
         <div>
             {data.map(n =>
                 <React.Fragment key={n._id}>
-                    {n.type === 'follow'
-                        ? <FollowNotification {...n} />
-                        : n.type === 'like'
-                            ? <LikeNotification {...n} />
-                            : n.type === 'comment'
-                                ? <CommentNotification {...n} />
-                                : <ReplyNotification {...n} />
+                    {n.type === 'like'
+                        ? <LikeNotification {...n.like} />
+                        : n.type === 'comment'
+                            ? <CommentNotification {...n.comment} />
+                            : <ReplyNotification {...n.reply} />
                     }
                     <Divider />
                 </React.Fragment>)}
@@ -55,8 +53,8 @@ function FollowNotification({ createdAt, follower: { _id, firstName, lastName, a
     </Link>
 }
 
-function LikeNotification({ postId, likeUser: { _id, firstName, lastName, avatar }, createdAt }) {
-    return <Link href={`/posts/${postId}`}>
+function LikeNotification({ postId, user: { _id, firstName, lastName, avatar }, createdAt }) {
+    return <Link href={`/posts/details/${postId}`}>
         <a className={css.item}>
             <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
             <div className={css.content}>
@@ -73,8 +71,8 @@ function LikeNotification({ postId, likeUser: { _id, firstName, lastName, avatar
     </Link>
 }
 
-function CommentNotification({ postId, commentUser: { _id, firstName, lastName, avatar }, createdAt }) {
-    return <Link href={`/posts/${postId}`}>
+function CommentNotification({ postId, user: { _id, firstName, lastName, avatar }, createdAt }) {
+    return <Link href={`/posts/details/${postId}`}>
         <a className={css.item}>
             <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
             <div className={css.content}>
@@ -92,8 +90,8 @@ function CommentNotification({ postId, commentUser: { _id, firstName, lastName, 
 }
 
 
-function ReplyNotification({ postId, replyUser: { _id, firstName, lastName, avatar }, createdAt }) {
-    return <Link href={`/posts/${postId}`}>
+function ReplyNotification({ postId, user: { _id, firstName, lastName, avatar }, createdAt }) {
+    return <Link href={`/posts/details/${postId}`}>
         <a className={css.item}>
             <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
             <div className={css.content}>

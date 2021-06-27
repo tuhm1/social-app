@@ -15,8 +15,7 @@ module.exports = io => {
                 const notification = await Notification.create({
                     userId: followingId,
                     type: 'follow',
-                    followerId: mongoose.Types.ObjectId(followerId),
-                    createdAt: follow.createdAt
+                    followId: follow._id
                 });
                 io.to(followerId).emit('notification', notification);
             } catch (err) {

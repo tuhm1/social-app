@@ -80,9 +80,7 @@ module.exports = io => {
                 const notification = await Notification.create({
                     userId: post.userId,
                     type: 'comment',
-                    postId,
-                    commentUserId: userId,
-                    createdAt: comment.createdAt
+                    commentId: comment._id,
                 });
                 io.to(post.userId).emit('notification', notification);
             } else {
@@ -92,9 +90,7 @@ module.exports = io => {
                 const notification = await Notification.create({
                     userId: target.userId,
                     type: 'reply',
-                    postId,
-                    replyUserId: userId,
-                    createdAt: reply.createdAt
+                    replyId: reply._id
                 });
                 io.to(target.userId).emit('notification', notification);
             }
