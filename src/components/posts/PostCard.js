@@ -72,7 +72,7 @@ function LikeButton({ postId, likesCount, liked }) {
         axios.post(`/api/likes/${postId}`)
             .then(() => {
                 setResponse({ status: 'success' });
-                axios.invalidateQueries();
+                queryClient.invalidateQueries();
             }).catch(error => {
                 alert(error.response?.data.message || error.message);
                 setResponse({ status: 'idle' });

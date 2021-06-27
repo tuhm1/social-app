@@ -21,7 +21,7 @@ module.exports = io => {
                 { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
                 { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
                 ...(req.user
-                    ? [{ $set: { liked: { $in: [userId, '$likes'] } } }]
+                    ? [{ $set: { liked: { $in: [mongoose.Types.ObjectId(req.user), '$likes.userId'] } } }]
                     : []
                 ),
                 { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
@@ -53,7 +53,7 @@ module.exports = io => {
                 { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
                 { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
                 ...(req.user
-                    ? [{ $set: { liked: { $in: [userId, '$likes'] } } }]
+                    ? [{ $set: { liked: { $in: [userId, '$likes.userId'] } } }]
                     : []
                 ),
                 { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
