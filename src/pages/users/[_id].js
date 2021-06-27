@@ -43,11 +43,11 @@ function Info({ user, followersCount, followed, postsCount, currentUserId }) {
     const { _id, avatar, firstName, lastName, bio, email, username } = user;
     return <Segment
         style={{
-            display: 'flex', minHeight: '100vh',
+            display: 'flex',
             flexDirection: 'column', justifyContent: 'center', alignItems: 'center'
         }}
     >
-        <img src={avatar || '/default-avatar.svg'} style={{ width: '250px', height: '250px', borderRadius: '50%', objectFit: 'cover' }} />
+        <img src={avatar || '/default-avatar.svg'} style={{ width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover' }} />
         <Header as='h1' icon>
             {`${firstName} ${lastName}`}
             <Header.Subheader>
