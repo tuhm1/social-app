@@ -117,6 +117,42 @@ module.exports = io => {
                     res.status(400).json(error);
                 }
             });
-        });
+        })
+        .put('/:_id', (req, res) => {
+            if (!req.user) {
+                return res.status(403).json({ message: 'User is not logged in' });
+            }
+            Post.findById(req.params._id)
+                .then(post => {
+                    if (!post.userId.equals(mongoose.Types.ObjectId(req.user))) {
+                        return res.status(403).json({ message: 'Unauthorized' });
+                    }
+                    upload(req, res, error => {
+                        if (error) {
+                            return res.sendStatus(500);
+                        }
+                        const deletedFileIds = JSON.parse(req.body.deletedFiles)
+                            .map(s => mongoose.Types.ObjectId(s));
+                        const newFiles = req.files.map(f => ({
+                            url: f.secure_url,
+                            resourceType: f.resource_type
+                        }));
+                        post.text = req.body.text;
+                        post.files = post.files
+                            .filter(f => !deletedFileIds.some(id => f._id.equals(id)))
+                            .concat(newFiles);
+                        post.save()
+                            .then(() => res.json(post))
+                            .catch(error => {
+                                if (error instanceof mongoose.Error.ValidationError)
+                                    res.status(400).json(error);
+                                else res.sendStatus(500);
+                            });
+                    });
+                })
+                .catch(error => {
+                    res.sendStatus(500);
+                });
+        })
     return app;
 }

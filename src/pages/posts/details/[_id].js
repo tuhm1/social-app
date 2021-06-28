@@ -9,7 +9,8 @@ import {
     Divider, Form, Header, Icon,
     Message, Placeholder, Segment,
     Modal,
-    TextArea
+    TextArea,
+    Dropdown
 } from "semantic-ui-react";
 import Carousel from '../../../components/Carousel';
 import css from '../../../styles/PostDetails.module.css';
@@ -46,6 +47,7 @@ export default function Post() {
                         {new Date(createdAt).toLocaleString()}
                     </div>
                 </div>
+                <DropdownActions _id={_id} userId={user._id} currentUserId={currentUserId} />
             </div>
             <p>
                 {text}
@@ -313,4 +315,16 @@ function DeleteComment({ _id }) {
     return <Comment.Action onClick={onClick}>
         Delete
     </Comment.Action>
+}
+
+function DropdownActions({ _id, userId, currentUserId }) {
+    if (userId !== currentUserId) return null;
+    return <Dropdown item icon='ellipsis vertical' className='pointing top right'>
+        <Dropdown.Menu>
+            <Link href={`/posts/edit/${_id}`}>
+                <Dropdown.Item icon='edit' text='Edit' as='a' />
+            </Link>
+            <Dropdown.Item icon='trash' text='Delete' />
+        </Dropdown.Menu>
+    </Dropdown>
 }

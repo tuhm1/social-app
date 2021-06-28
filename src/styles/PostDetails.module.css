@@ -26,7 +26,7 @@
 
 .textHeader {
     display: flex;
-    
+    align-items: flex-start;
 }
 
 .avatar {
@@ -38,6 +38,7 @@
 
 .textHeaderTitle {
     margin-left: 0.5em;
+    flex-grow: 1;
 }
 
 .username {
