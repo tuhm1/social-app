@@ -318,13 +318,29 @@ function DeleteComment({ _id }) {
 }
 
 function DropdownActions({ _id, userId, currentUserId }) {
+    const queryClient = useQueryClient();
+    const router = useRouter();
     if (userId !== currentUserId) return null;
+    const onDelete = () => {
+        if (confirm('Are you sure you want to delete?')) {
+            axios.delete(`/api/posts/${_id}`)
+                .then(() => {
+                    router.back();
+                })
+                .catch(error => {
+                    alert(error.response?.data.message || error.message);
+                })
+                .finally(() => {
+                    queryClient.invalidateQueries();
+                });
+        }
+    }
     return <Dropdown item icon='ellipsis vertical' className='pointing top right'>
         <Dropdown.Menu>
             <Link href={`/posts/edit/${_id}`}>
                 <Dropdown.Item icon='edit' text='Edit' as='a' />
             </Link>
-            <Dropdown.Item icon='trash' text='Delete' />
+            <Dropdown.Item onClick={onDelete} icon='trash' text='Delete' />
         </Dropdown.Menu>
     </Dropdown>
 }

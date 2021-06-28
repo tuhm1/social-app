@@ -154,5 +154,24 @@ module.exports = io => {
                     res.sendStatus(500);
                 });
         })
+        .delete('/:_id', (req, res) => {
+            if (!req.user) {
+                return res.status(403).json({ message: 'Unauthorized' });
+            }
+            Post.findById(req.params._id)
+                .then(post => {
+                    if (!post.userId.equals(mongoose.Types.ObjectId(req.user))) {
+                        return res.status(403).json({ message: 'Unauthorized' });
+                    }
+                    return post.remove();
+                })
+                .then(() => {
+                    res.sendStatus(200);
+                })
+                .catch(error => {
+                    console.error(error);
+                    res.sendStatus(500);
+                });
+        })
     return app;
 }
