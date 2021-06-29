@@ -1,14 +1,13 @@
-import {
-    Button, Container, Divider,
-    Header, Segment, Statistic, Icon, Modal, Message, Confirm
-} from "semantic-ui-react";
-import EditModal from '../../components/users/UserEditModal';
-import { useState } from 'react';
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from 'next/router';
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+import {
+    Button, Divider,
+    Header, Icon, Segment, Statistic
+} from "semantic-ui-react";
 import PostCard from '../../components/posts/PostCard';
+import EditModal from '../../components/users/UserEditModal';
 
 export default function Profile() {
     const router = useRouter();
@@ -75,47 +74,41 @@ function Info({ user, followersCount, followed, postsCount, currentUserId }) {
 }
 
 function FollowButton({ _id }) {
-    const [error, setError] = useState();
+    const queryClient = useQueryClient();
     const onClick = () => {
-        axios.post(`/api/follow/${_id}`).catch(setError)
+        axios.post(`/api/follow/${_id}`)
+            .catch(error => {
+                alert(error.response?.data.message || error.message);
+            })
+            .finally(() => {
+                queryClient.invalidateQueries();
+            });
     };
-    return <>
-        <Button
-            onClick={onClick}
-            icon='add user'
-            content='Follow'
-            primary
-        />
-        {error && <FollowError error={error} onClose={() => setError()} />}
-    </>
-
+    return <Button
+        onClick={onClick}
+        icon='add user'
+        content='Follow'
+        primary
+    />
 }
 
 function UnfollowButton({ _id }) {
-    const [error, setError] = useState();
-    const [confirm, setConfirm] = useState(false);
-    const unfollow = () => {
-        axios.delete(`/api/follow/${_id}`).catch(setError);
+    const queryClient = useQueryClient();
+    const onClick = () => {
+        if (confirm('Are you sure you want to unfollow')) {
+            axios.delete(`/api/follow/${_id}`)
+                .catch(error => {
+                    alert(error.response?.data.message || error.message);
+                })
+                .finally(() => {
+                    queryClient.invalidateQueries();
+                });
+        }
     }
-    return <>
-        <Button
-            onClick={() => setConfirm(true)}
-            icon='user delete'
-            content='Unfollow'
-            basic
-        />
-        {confirm && <Confirm open={true} onConfirm={unfollow} content='Are you sure you want to unfollow?' />}
-        {error && <FollowError error={error} onClose={() => setError()} />}
-    </>
-}
-
-function FollowError({ error, onClose }) {
-    let message = error.response?.data?.errors?.followerId?.kind === 'required'
-        ? 'Please login first'
-        : error.message;
-    return <Modal open={true} closeIcon onClose={onClose}>
-        <Modal.Content>
-            <Message error header='Error' content={message} />
-        </Modal.Content>
-    </Modal>
+    return <Button
+        onClick={onClick}
+        icon='user delete'
+        content='Unfollow'
+        basic
+    />
 }

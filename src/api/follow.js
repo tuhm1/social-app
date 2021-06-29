@@ -7,6 +7,9 @@ module.exports = io => {
 
     app
         .post('/:followingId', async (req, res) => {
+            if (!req.user) {
+                res.status(401).json({message: 'User is not logged in'});
+            }
             try {
                 const followerId = req.user;
                 const followingId = req.params.followingId;
