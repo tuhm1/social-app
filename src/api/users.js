@@ -23,50 +23,9 @@ app
                 Follow.countDocuments({ followingId: _id }),
                 req.user && Follow.exists({ followingId: _id, followerId: req.user }),
                 Post.countDocuments({ userId: _id }),
-                Post.aggregate([
-                    { $match: { userId: mongoose.Types.ObjectId(_id) } },
-                    { $sort: { createdAt: -1 } },
-                    { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
-                    { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
-                    { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'user' } },
-                    { $unwind: '$user' },
-                    ...(req.user
-                        ? [
-                            {
-                                $lookup: {
-                                    from: 'likes', as: 'liked',
-                                    let: { postId: '$_id' },
-                                    pipeline: [
-                                        {
-                                            $match: {
-                                                $expr: {
-                                                    $and: [
-                                                        { $eq: ['$userId', mongoose.Types.ObjectId(req.user)] },
-                                                        { $eq: ['$postId', '$$postId'] }
-                                                    ]
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            { $set: { liked: { $gt: [{ $size: '$liked' }, 0] } } }
-                        ]
-                        : []
-                    ),
-                    {
-                        $project: {
-                            _id: 1, text: 1, files: 1, createdAt: 1,
-                            'user._id': 1, 'user.avatar': 1,
-                            'user.firstName': 1, 'user.lastName': 1,
-                            likesCount: { $size: '$likes' },
-                            liked: 1,
-                            commentsCount: { $size: '$comments' }
-                        }
-                    },
-                ]),
+
             ]);
-            res.json({ user, followersCount, followed, posts, postsCount, currentUserId: req.user });
+            res.json({ user, followersCount, followed, postsCount, currentUserId: req.user });
         } catch (err) {
             res.status(500).json(err);
         }
