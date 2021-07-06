@@ -1,13 +1,9 @@
-import mongoose from 'mongoose';
-import { Modal, Button, Divider, Icon } from 'semantic-ui-react';
-import CreateConversation from './create';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { useState } from 'react';
-import Head from 'next/head';
-import { useQuery } from 'react-query';
 import axios from 'axios';
+import Head from 'next/head';
+import Link from 'next/link';
 import React from 'react';
+import { useQuery } from 'react-query';
+import { Image, List, Menu } from 'semantic-ui-react';
 
 export default function ChatIndex() {
     const { data: currentUserId } = useQuery('/api/auth/me', () =>
@@ -21,68 +17,55 @@ export default function ChatIndex() {
             <title>Chat</title>
         </Head>
         <div style={{ maxWidth: '800px', margin: 'auto', padding: '1em' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ fontSize: 'x-large' }}>Chat</span>
-                <ButtonNewConversation style={{ marginLeft: 'auto' }} />
-            </div>
-            <Divider />
-            <div>
+            <Menu secondary pointing>
+                <Menu.Item header>Chat</Menu.Item>
+                <Link href='/chat/create'>
+                    <Menu.Item position='right' as='a' icon='plus' />
+                </Link>
+            </Menu>
+            <List selection>
                 {conversations?.map(({ _id, title, users, lastMessage }) =>
-                    <React.Fragment key={_id}>
-                        <div style={{ display: 'flex' }}>
+                    <Link href={`/chat/conversations/${_id}`} key={_id} >
+                        <List.Item style={{ display: 'flex' }}>
                             {
-                                <img
+                                <Image
                                     src={
                                         users.length === 2
                                             ? (users.filter(u => u._id !== currentUserId)[0].avatar || '/default-avatar.svg')
                                             : '/fa-users.svg'
                                     }
-                                    style={{ width: '3em', height: '3em', objectFit: 'cover', borderRadius: '50%', flexShrink: 0 }}
+                                    avatar
                                 />
                             }
-                            <div style={{ marginLeft: '0.5em', flexGrow: 1 }}>
-                                <Link href={`/chat/conversations/${_id}`}>
-                                    <a style={{ fontWeight: '700' }}>{
-                                        title
-                                        || users
-                                            .filter(u => u._id !== currentUserId)
-                                            .map(u => `${u.firstName} ${u.lastName}`)
-                                            .join(', ')
-                                    }</a>
-                                </Link>
-                                {lastMessage
-                                    && <div style={{ display: 'flex' }}>
-                                        <div style={{ flexGrow: 1 }}>
-                                            {lastMessage.files.length > 0
-                                                ? <><a>{lastMessage.firstName}</a> sent some files</>
-                                                : <><a>{lastMessage.sender.firstName}</a>: {lastMessage.text}</>
-                                            }
+                            <List.Content style={{ flexGrow: 1 }}>
+                                <List.Header as='a'>{
+                                    title
+                                    || users
+                                        .filter(u => u._id !== currentUserId)
+                                        .map(u => `${u.firstName} ${u.lastName}`)
+                                        .join(', ')
+                                }</List.Header>
+                                <List.Description>
+                                    {lastMessage
+                                        && <div style={{ display: 'flex' }}>
+                                            <div style={{ flexGrow: 1 }}>
+                                                {lastMessage.files.length > 0
+                                                    ? <><a>{lastMessage.firstName}</a> sent some files</>
+                                                    : <><a>{lastMessage.sender.firstName}</a>: {lastMessage.text}</>
+                                                }
+                                            </div>
+
+                                            <span style={{ fontSize: '0.875em', color: 'rgba(0,0,0,.4)', marginLeft: '0.5em' }}>
+                                                {new Date(lastMessage.createdAt).toLocaleString()}
+                                            </span>
                                         </div>
-                                        <span style={{ fontSize: '0.875em', color: 'rgba(0,0,0,.4)', marginLeft: '0.5em' }}>
-                                            {new Date(lastMessage.createdAt).toLocaleString()}
-                                        </span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                        <Divider />
-                    </React.Fragment>
+                                    }
+                                </List.Description>
+                            </List.Content>
+                        </List.Item>
+                    </Link>
                 )}
-            </div>
+            </List>
         </div>
     </>
-}
-
-function ButtonNewConversation({ style }) {
-    const [open, setOpen] = useState(false);
-    const router = useRouter();
-    return <Modal
-        trigger={<Button icon='edit' primary style={style} />}
-        content={<CreateConversation onCreated={conversationId => router.push(`/chat/conversations/${conversationId}`)} />}
-        open={open}
-        onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
-        closeIcon
-        size='small'
-    />
 }

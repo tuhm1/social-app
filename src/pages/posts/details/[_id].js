@@ -14,6 +14,7 @@ import {
 } from "semantic-ui-react";
 import Carousel from '../../../components/Carousel';
 import css from '../../../styles/PostDetails.module.css';
+import Head from 'next/head';
 
 export default function Post() {
     const router = useRouter();
@@ -28,37 +29,42 @@ export default function Post() {
     if (!post) return <PostNotFound />
 
     const { text, files, user, likes, commentsCount, createdAt } = post;
-    return <div className={css.container}>
-        {files?.length > 0 &&
-            <div className={css.media}>
-                <Carousel files={files} />
-            </div>
-        }
-        <div className={css.text}>
-            <div className={css.textHeader}>
-                <img src={user.avatar || '/default-avatar.svg'} className={css.avatar} />
-                <div className={css.textHeaderTitle}>
-                    <Link href={`/users/${user._id}`}>
-                        <a className={css.username}>
-                            {`${user.firstName} ${user.lastName}`}
-                        </a>
-                    </Link>
-                    <div className={css.time}>
-                        {new Date(createdAt).toLocaleString()}
-                    </div>
+    return <>
+        <Head>
+            <title>{`${user.firstName} ${user.lastName} - ${text.slice(0.30)}`}</title>
+        </Head>
+        <div className={css.container}>
+            {files?.length > 0 &&
+                <div className={css.media}>
+                    <Carousel files={files} />
                 </div>
-                <DropdownActions _id={_id} userId={user._id} currentUserId={currentUserId} />
+            }
+            <div className={css.text}>
+                <div className={css.textHeader}>
+                    <img src={user.avatar || '/default-avatar.svg'} className={css.avatar} />
+                    <div className={css.textHeaderTitle}>
+                        <Link href={`/users/${user._id}`}>
+                            <a className={css.username}>
+                                {`${user.firstName} ${user.lastName}`}
+                            </a>
+                        </Link>
+                        <div className={css.time}>
+                            {new Date(createdAt).toLocaleString()}
+                        </div>
+                    </div>
+                    <DropdownActions _id={_id} userId={user._id} currentUserId={currentUserId} />
+                </div>
+                <p>
+                    {text}
+                </p>
+                <div>
+                    <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
+                    <Button basic icon='comment' content={commentsCount} />
+                </div>
+                <CommentSection postId={_id} currentUserId={currentUserId} />
             </div>
-            <p>
-                {text}
-            </p>
-            <div>
-                <LikeButton postId={_id} likes={likes} currentUserId={currentUserId} />
-                <Button basic icon='comment' content={commentsCount} />
-            </div>
-            <CommentSection postId={_id} currentUserId={currentUserId} />
         </div>
-    </div>
+    </>
 }
 
 function LikeButton({ postId, likes, currentUserId }) {

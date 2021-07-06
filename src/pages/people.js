@@ -1,17 +1,10 @@
-import axios from "axios";
 import mongoose from "mongoose";
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from "next/router";
-import { useEffect } from "react";
 import {
-    Container,
-    Divider,
-    Dropdown,
     Header,
-    Icon, Segment, Tab
+    Icon, Image, List, Segment, Tab
 } from "semantic-ui-react";
-import io from 'socket.io-client';
 
 export async function getServerSideProps({ req }) {
     if (!req.user) {
@@ -38,15 +31,6 @@ export async function getServerSideProps({ req }) {
 }
 
 export default function People({ following, followers }) {
-    const router = useRouter();
-    useEffect(() => {
-        const socket = io();
-        socket.onAny(() => {
-            router.replace(router.asPath, undefined, { scroll: false })
-        });
-        return () => socket.close();
-    }, []);
-
     return <div style={{ maxWidth: '700px', 'margin': 'auto', padding: '1em' }}>
         <Head>
             <title>People</title>
@@ -68,66 +52,44 @@ export default function People({ following, followers }) {
 
 function FollowerList({ followers }) {
     return followers.length > 0
-        ? <div>
+        ? <List selection verticalAlign='middle'>
             {followers.map(user =>
-                <>
-                    <div key={user._id} style={{ display: 'flex', alignItems: 'center' }}>
-                        <img src={user.avatar || '/default-avatar.svg'} style={{ width: '3em', height: '3em', float: 'left', borderRadius: '50%', objectFit: 'cover' }} />
-                        <Link href={`/users/${user._id}`}>
-                            <a style={{ float: 'left', fontWeight: 'bold', marginLeft: '0.5em' }}>
-                                {`${user.firstName} ${user.lastName}`}
-                            </a>
-                        </Link>
-                        <Dropdown icon='bars' style={{ marginLeft: 'auto' }}>
-                            <Dropdown.Menu style={{ right: 0, left: 'auto' }}>
-                                <Dropdown.Item text='Message' icon='chat' />
-                                <Dropdown.Item text='Follow' icon='user delete'
-                                    onClick={() => axios.post(`/api/follow/${user._id}`)}
-                                />
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </div>
-                    <Divider />
-                </>
+                <Link key={user._id} href={`/users/${user._id}`}>
+                    <List.Item>
+                        <Image src={user.avatar || '/default-avatar.svg'} avatar />
+                        <List.Content>
+                            <List.Header as='a'>{`${user.firstName} ${user.lastName}`}</List.Header>
+                        </List.Content>
+                    </List.Item>
+                </Link>
             )}
-        </div>
+        </List>
         : <Segment placeholder>
             <Header icon>
                 <Icon name='user' />
-                    You haven't had any followers.
-                </Header>
+                You haven't had any followers.
+            </Header>
         </Segment>
 }
 
 function FollowingList({ following }) {
     return following.length > 0
-        ? <div>
+        ? <List selection verticalAlign='middle'>
             {following.map(user =>
-                <>
-                    <div key={user._id} style={{ display: 'flex', alignItems: 'center' }}>
-                        <img src={user.avatar || '/default-avatar.svg'} style={{ width: '3em', height: '3em', float: 'left', borderRadius: '50%', objectFit: 'cover' }} />
-                        <Link href={`/users/${user._id}`}>
-                            <a style={{ float: 'left', fontWeight: 'bold', marginLeft: '0.5em' }}>
-                                {`${user.firstName} ${user.lastName}`}
-                            </a>
-                        </Link>
-                        <Dropdown icon='bars' style={{ marginLeft: 'auto' }}>
-                            <Dropdown.Menu style={{ right: 0, left: 'auto' }}>
-                                <Dropdown.Item text='Message' icon='chat' />
-                                <Dropdown.Item text='Unfollow' icon='user delete'
-                                    onClick={() => axios.delete(`/api/follow/${user._id}`)}
-                                />
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </div>
-                    <Divider />
-                </>
+                <Link href={`/users/${user._id}`} key={user._id} >
+                    <List.Item>
+                        <Image avatar src={user.avatar || '/default-avatar.svg'} />
+                        <List.Content>
+                            <List.Header as='a'>{`${user.firstName} ${user.lastName}`}</List.Header>
+                        </List.Content>
+                    </List.Item>
+                </Link>
             )}
-        </div>
+        </List>
         : <Segment placeholder>
             <Header icon>
                 <Icon name='user' />
-                    You haven't followed anyone.
-                </Header>
+                You haven't followed anyone.
+            </Header>
         </Segment>
 }

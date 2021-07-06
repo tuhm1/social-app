@@ -15,6 +15,69 @@ module.exports = io => {
     }).array('files');
 
     app
+        .get('/user/posts/:userId',  async (req, res) => {
+            const posts = await Post.aggregate([
+                { $match: { userId: mongoose.Types.ObjectId(req.params.userId) } },
+                { $sort: { createdAt: -1 } },
+                { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
+                { $lookup: { from: 'comments', localField: '_id', foreignField: 'postId', as: 'comments' } },
+                { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'user' } },
+                { $unwind: '$user' },
+                ...(req.user
+                    ? [
+                        {
+                            $lookup: {
+                                from: 'likes', as: 'liked',
+                                let: { postId: '$_id' },
+                                pipeline: [
+                                    {
+                                        $match: {
+                                            $expr: {
+                                                $and: [
+                                                    { $eq: ['$userId', mongoose.Types.ObjectId(req.user)] },
+                                                    { $eq: ['$postId', '$$postId'] }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        { $set: { liked: { $gt: [{ $size: '$liked' }, 0] } } }
+                    ]
+                    : []
+                ),
+                {
+                    $project: {
+                        _id: 1, text: 1, files: 1, createdAt: 1,
+                        'user._id': 1, 'user.avatar': 1,
+                        'user.firstName': 1, 'user.lastName': 1,
+                        likesCount: { $size: '$likes' },
+                        liked: 1,
+                        commentsCount: { $size: '$comments' }
+                    }
+                },
+            ]);
+            res.json(posts);
+        })
+        .get('/user/images/:userId', async (req, res) => {
+            const posts = await Post.aggregate([
+                { $match: { userId: mongoose.Types.ObjectId(req.params.userId) } },
+                { $unwind: '$files' },
+                { $match: { 'files.resourceType': 'image' } },
+                { $sort: { createdAt: -1 } },
+            ]);
+            res.json(posts);
+        })
+        .get('/user/videos/:userId', async (req, res) => {
+            const posts = await Post.aggregate([
+                { $match: { userId: mongoose.Types.ObjectId(req.params.userId) } },
+                { $unwind: '$files' },
+                { $match: { 'files.resourceType': 'video' } },
+                { $sort: { createdAt: -1 } },
+            ]);
+            res.json(posts);
+        })
         .get('/home', async (req, res) => {
             const posts = await Post.aggregate([
                 { $sort: { createdAt: -1, _id: -1 } },

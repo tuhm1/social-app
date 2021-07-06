@@ -1,10 +1,10 @@
 import axios from "axios";
+import Head from 'next/head';
 import Link from "next/link";
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from "react-query";
 import {
-    Button, Divider,
-    Header, Icon, Segment, Statistic
+    Button, Header, Icon, Segment, Statistic, Tab
 } from "semantic-ui-react";
 import PostCard from '../../components/posts/PostCard';
 import EditModal from '../../components/users/UserEditModal';
@@ -16,16 +16,24 @@ export default function Profile() {
         axios.get(`/api/user/${_id}`).then(res => res.data)
     );
     if (!data) return null;
-    const { user, followersCount, followed, postsCount, posts, currentUserId } = data;
+    const { user, followersCount, followed, postsCount, currentUserId } = data;
     return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+        <Head>
+            <title>{`${user.firstName} ${user.lastName}`}</title>
+        </Head>
         {user
-            ? <Info {...{ user, followersCount, followed, postsCount, currentUserId }} />
+            ? <>
+                <Info {...{ user, followersCount, followed, postsCount, currentUserId }} />
+                <Tab menu={{ secondary: true, pointing: true }}
+                    panes={[
+                        { menuItem: 'Posts', render: () => <Posts userId={_id} /> },
+                        { menuItem: 'Images', render: () => <Images userId={_id} /> },
+                        { menuItem: 'Videos', render: () => <Videos userId={_id} /> }
+                    ]}
+                />
+            </>
             : <UserNotFound />
         }
-        <Divider />
-        <div>
-            {posts.map(p => <PostCard {...p} key={p._id} />)}
-        </div>
     </div>
 };
 
@@ -111,4 +119,43 @@ function UnfollowButton({ _id }) {
         content='Unfollow'
         basic
     />
+}
+
+function Posts({ userId }) {
+    const { data: posts } = useQuery(`/api/posts/user/posts/${userId}`, () =>
+        axios.get(`/api/posts/user/posts/${userId}`).then(res => res.data)
+    );
+    return <div>
+        {posts?.map(p => <PostCard key={p._id} {...p} />)}
+    </div>
+}
+
+function Images({ userId }) {
+    const { data: posts } = useQuery(`/api/posts/user/images/${userId}`, () =>
+        axios.get(`/api/posts/user/images/${userId}`).then(res => res.data)
+    );
+    return <div>
+        {posts?.map(p =>
+            <Link href={`/posts/details/${p._id}`} key={p.files._id}>
+                <a>
+                    <img src={p.files.url} style={{ width: '33%', aspectRatio: '1/1', objectFit: 'cover' }} />
+                </a>
+            </Link>
+        )}
+    </div>
+}
+
+function Videos({ userId }) {
+    const { data: posts } = useQuery(`/api/posts/user/videos/${userId}`, () =>
+        axios.get(`/api/posts/user/videos/${userId}`).then(res => res.data)
+    );
+    return <div>
+        {posts?.map(p =>
+            <Link href={`/posts/details/${p._id}`} key={p.files._id}>
+                <a>
+                    <video src={p.files.url} style={{ width: '33%', aspectRatio: '1/1', objectFit: 'cover' }} controls />
+                </a>
+            </Link>
+        )}
+    </div>
 }

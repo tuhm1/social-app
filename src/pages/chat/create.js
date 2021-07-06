@@ -1,11 +1,13 @@
 import axios from "axios";
+import { useRouter } from 'next/router';
 import { useEffect, useState } from "react";
 import {
     Button, Form, Header,
-    Icon, Label, Search, Segment
+    Icon, Label, Search
 } from "semantic-ui-react";
 
-export default function CreateConversation({ onCreated }) {
+export default function CreateConversation() {
+    const router = useRouter();
     const [users, setUsers] = useState([]);
     const onSubmit = e => {
         e.preventDefault();
@@ -15,7 +17,7 @@ export default function CreateConversation({ onCreated }) {
             .post('/api/chat/', { userIds, title })
             .then(res => {
                 const conversationId = res.data;
-                onCreated(conversationId);
+                router.push(`/chat/conversations/${conversationId}`);
             });
     }
     return <Form onSubmit={onSubmit} size='large' style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>

@@ -28,7 +28,9 @@ export default function TopMenu({ children }) {
                         icon='sidebar'
                         onClick={() => setSidebar(!sidebar)}
                     />
-                    <Menu.Item header>Socialize</Menu.Item>
+                    <Link href='/'>
+                        <Menu.Item header as='a'>Socialize</Menu.Item>
+                    </Link>
                 </Container>
             </Menu>
             <Sidebar
