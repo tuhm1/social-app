@@ -3,8 +3,9 @@ import Error from 'next/error';
 import Link from 'next/link';
 import React from 'react';
 import { useQuery } from "react-query";
-import { Divider, Header } from 'semantic-ui-react';
+import { Divider, Header, Menu, List, Image } from 'semantic-ui-react';
 import css from '../styles/Notifications.module.css';
+import Head from 'next/head';
 
 export default function Notifications() {
     const { data, error, isLoading } = useQuery('/api/notifications/general', () =>
@@ -19,45 +20,29 @@ export default function Notifications() {
         />
     }
     return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
-        <Header as='h2' dividing>Notifications</Header>
-        <div>
+        <Head>
+            <title>Notifications</title>
+        </Head>
+        <Menu secondary pointing>
+            <Menu.Item header>Notifications</Menu.Item>
+        </Menu>
+        <List selection>
             {data.map(n =>
-                <React.Fragment key={n._id}>
-                    {n.type === 'like'
-                        ? <LikeNotification {...n.like} />
-                        : n.type === 'comment'
-                            ? <CommentNotification {...n.comment} />
-                            : <ReplyNotification {...n.reply} />
-                    }
-                    <Divider />
-                </React.Fragment>)}
-        </div>
+                n.type === 'like'
+                    ? <LikeNotification {...n.like} key={n._id} />
+                    : n.type === 'comment'
+                        ? <CommentNotification {...n.comment} key={n._id} />
+                        : <ReplyNotification {...n.reply} key={n._id} />
+            )}
+        </List>
     </div>
-}
-
-function FollowNotification({ createdAt, follower: { _id, firstName, lastName, avatar } }) {
-    return <Link href={`/users/${_id}`}>
-        <a className={css.item}>
-            <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
-            <div className={css.content}>
-                <div className={css.summary}>
-                    <Link href={`/users/${_id}`}>
-                        <a className={css.username}>{`${firstName} ${lastName}`}</a>
-                    </Link> followed you.
-                </div>
-                <span className={css.time}>
-                    {new Date(createdAt).toLocaleString()}
-                </span>
-            </div>
-        </a>
-    </Link>
 }
 
 function LikeNotification({ postId, user: { _id, firstName, lastName, avatar }, createdAt }) {
     return <Link href={`/posts/details/${postId}`}>
-        <a className={css.item}>
-            <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
-            <div className={css.content}>
+        <List.Item style={{ display: 'flex' }}>
+            <Image src={avatar || '/default-avatar.svg'} avatar />
+            <List.Content style={{ flexGrow: 1, display: 'flex' }}>
                 <div className={css.summary}>
                     <Link href={`/users/${_id}`}>
                         <a className={css.username}>{`${firstName} ${lastName}`}</a>
@@ -66,16 +51,16 @@ function LikeNotification({ postId, user: { _id, firstName, lastName, avatar }, 
                 <span className={css.time}>
                     {new Date(createdAt).toLocaleString()}
                 </span>
-            </div>
-        </a>
+            </List.Content>
+        </List.Item>
     </Link>
 }
 
 function CommentNotification({ postId, user: { _id, firstName, lastName, avatar }, createdAt }) {
     return <Link href={`/posts/details/${postId}`}>
-        <a className={css.item}>
-            <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
-            <div className={css.content}>
+        <List.Item style={{ display: 'flex' }}>
+            <Image src={avatar || '/default-avatar.svg'} avatar />
+            <List.Content style={{ flexGrow: 1, display: 'flex' }}>
                 <div className={css.summary}>
                     <Link href={`/users/${_id}`}>
                         <a className={css.username}>{`${firstName} ${lastName}`}</a>
@@ -84,17 +69,17 @@ function CommentNotification({ postId, user: { _id, firstName, lastName, avatar 
                 <span className={css.time}>
                     {new Date(createdAt).toLocaleString()}
                 </span>
-            </div>
-        </a>
+            </List.Content>
+        </List.Item>
     </Link>
 }
 
 
 function ReplyNotification({ postId, user: { _id, firstName, lastName, avatar }, createdAt }) {
     return <Link href={`/posts/details/${postId}`}>
-        <a className={css.item}>
-            <img src={avatar || '/default-avatar.svg'} className={css.avatar} />
-            <div className={css.content}>
+        <List.Item style={{ display: 'flex' }}>
+            <Image src={avatar || '/default-avatar.svg'} avatar />
+            <List.Content style={{ flexGrow: 1, display: 'flex' }}>
                 <div className={css.summary}>
                     <Link href={`/users/${_id}`}>
                         <a className={css.username}>{`${firstName} ${lastName}`}</a>
@@ -103,7 +88,7 @@ function ReplyNotification({ postId, user: { _id, firstName, lastName, avatar },
                 <span className={css.time}>
                     {new Date(createdAt).toLocaleString()}
                 </span>
-            </div>
-        </a>
+            </List.Content>
+        </List.Item>
     </Link>
 }
