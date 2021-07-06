@@ -24,6 +24,7 @@ export default function Conversation() {
             <div className={css['media-buttons']}>
                 <ButtonVideo peer={peer} socket={socket} />
                 <ButtonAudio peer={peer} socket={socket} />
+                <ButtonScreen peer={peer} socket={socket} />
             </div>
             <div className={css.container}>
                 {peer && <Tracks peer={peer} socket={socket} />}
@@ -324,5 +325,53 @@ function ButtonAudio({ peer, socket }) {
         basic
         icon='microphone'
         color={audio && 'red'}
+    />
+}
+
+function ButtonScreen({ peer, socket }) {
+    const [share, setShare] = useState();
+    useEffect(() => {
+        if (share) {
+            const shareScreen = async () => {
+                if (!navigator.mediaDevices.getDisplayMedia) {
+                    alert('Your browser does not support screen sharing');
+                    setShare(false);
+                    return;
+                }
+                const stream = await navigator.mediaDevices.getDisplayMedia();
+                const track = stream.getTracks()[0];
+                const sender = peer.addTrack(track);
+                let stopped = false;
+                track.onended = e => {
+                    if (!stopped) {
+                        stopped = true;
+                        if (peer.signalingState === 'closed') return;
+                        peer.removeTrack(sender);
+                        peer.getTransceivers().forEach((tc, i) => {
+                            tc.sender === sender && socket.emit('removetrack', i);
+                        });
+                    }
+                }
+                return () => {
+                    if (!stopped) {
+                        track.stop();
+                        stopped = true;
+                        if (peer.signalingState === 'closed') return;
+                        peer.removeTrack(sender);
+                        peer.getTransceivers().forEach((tc, i) => {
+                            tc.sender === sender && socket.emit('removetrack', i);
+                        });
+                    }
+                }
+            };
+            const pCleanup = shareScreen();
+            return () => pCleanup.then(cleanup => cleanup());
+        }
+    }, [share, peer, socket]);
+    return <Button
+        onClick={() => setShare(!share)}
+        basic
+        icon='tv'
+        color={share ? 'red' : undefined}
     />
 }
