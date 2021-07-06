@@ -28,7 +28,6 @@
 .message-chat {
     overflow: auto;
     flex-grow: 1;
-    width: 33%;
 }
 
 .message-chat-1 {
@@ -54,7 +53,7 @@
     scroll-snap-align: start;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 700px) {
     .container {
         flex-direction: column;
     }

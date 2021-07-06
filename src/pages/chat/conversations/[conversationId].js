@@ -80,14 +80,14 @@ function Message({ sender, text, files, createdAt }) {
         />
         <div style={{ marginLeft: '0.5em', flexGrow: 1, overflow: 'auto' }}>
             <Link href={`/users/${sender._id}`}>
-                <a style={{ fontSize: '16px', fontWeight: 700 }}>
+                <a style={{ fontWeight: 'bold' }}>
                     {`${sender.firstName} ${sender.lastName}`}
                 </a>
             </Link>
             <span style={{ fontSize: '0.875em', color: 'rgba(0,0,0,.4)', marginLeft: '0.5em' }}>
                 {new Date(createdAt).toLocaleString()}
             </span>
-            <p style={{ fontSize: '16px' }}>
+            <p>
                 {text}
             </p>
             {files?.length > 0 && <Carousel files={files} />}
