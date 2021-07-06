@@ -15,7 +15,7 @@ module.exports = io => {
     }).array('files');
     app
         .get('/conversations', async (req, res) => {
-            const conversations = await Conversation.aggregate([
+            const pConversations = Conversation.aggregate([
                 { $match: { userIds: mongoose.Types.ObjectId(req.user) } },
                 { $lookup: { from: 'users', localField: 'userIds', foreignField: '_id', as: 'users' } },
                 {
@@ -43,6 +43,16 @@ module.exports = io => {
                     }
                 }
             ]);
+            const pNotifications = await Notification.aggregate([
+                { $match: { userId: mongoose.Types.ObjectId(req.user), type: 'message' } },
+                { $lookup: { from: 'messages', localField: 'messageId', foreignField: '_id', as: 'message' } },
+                { $unwind: '$message' },
+                { $group: { _id: '$message.conversationId', count: { $sum: 1 } } }
+            ]);
+            const [conversations, notifications] = await Promise.all([pConversations, pNotifications]);
+            conversations.forEach(c =>
+                c.newsCount = notifications.find(n => n._id.equals(c._id))?.count
+            );
             res.json(conversations);
         })
         .get('/conversations/:conversationId', async (req, res) => {

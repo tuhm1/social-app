@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import React from 'react';
 import { useQuery } from 'react-query';
-import { Image, List, Menu } from 'semantic-ui-react';
+import { Image, Label, List, Menu } from 'semantic-ui-react';
 
 export default function ChatIndex() {
     const { data: currentUserId } = useQuery('/api/auth/me', () =>
@@ -24,7 +24,7 @@ export default function ChatIndex() {
                 </Link>
             </Menu>
             <List selection>
-                {conversations?.map(({ _id, title, users, lastMessage }) =>
+                {conversations?.map(({ _id, title, users, lastMessage, newsCount }) =>
                     <Link href={`/chat/conversations/${_id}`} key={_id} >
                         <List.Item style={{ display: 'flex' }}>
                             {
@@ -48,6 +48,7 @@ export default function ChatIndex() {
                                 <List.Description>
                                     {lastMessage
                                         && <div style={{ display: 'flex' }}>
+                                            {newsCount && <Label color='red' circular size='mini'>{newsCount}</Label>}
                                             <div style={{ flexGrow: 1 }}>
                                                 {lastMessage.files.length > 0
                                                     ? <><a>{lastMessage.firstName}</a> sent some files</>

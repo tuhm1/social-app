@@ -47,11 +47,11 @@ function MessageChat({ conversationId }) {
                 .filter(n => messages.some(m => m._id === n.messageId))
                 .map(n => n._id);
             if (seen.length > 0) {
-                axios.put(`/api/notifications`, seen)
+                axios.put(`/api/notifications/chat`, seen)
                     .then(() => queryClient.invalidateQueries());
             }
         }
-    }, [messages]);
+    }, [messages, notifications]);
     useEffect(() => {
         const socket = io();
         socket.onAny(() => refetch());

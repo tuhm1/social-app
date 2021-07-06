@@ -31,6 +31,9 @@ export default function TopMenu({ children }) {
                     <Link href='/'>
                         <Menu.Item header as='a'>Socialize</Menu.Item>
                     </Link>
+                    <Menu.Menu position='right'>
+
+                    </Menu.Menu>
                 </Container>
             </Menu>
             <Sidebar
@@ -54,7 +57,9 @@ export default function TopMenu({ children }) {
                     <>
                         <MessageItem />
                         <NotificationItem />
-                        <PeopleItem />
+                        <Link href='/people'>
+                            <Menu.Item as='a' icon='group' content='People' />
+                        </Link>
                         <Link href={`/users/${currentUserId}`}>
                             <Menu.Item as='a' icon='user' content='Profile' />
                         </Link>
@@ -87,37 +92,19 @@ function NotificationItem() {
 }
 
 function MessageItem() {
-    const { data: notifications } = useQuery('/api/notifications/chat', () =>
-        axios.get('/api/notifications/chat').then(res => res.data)
+    const { data: count } = useQuery('/api/notifications/chat/count', () =>
+        axios.get('/api/notifications/chat/count').then(res => res.data)
     );
     return <Link href='/chat'>
         <Menu.Item as='a'>
             <Icon name='chat' style={{ position: 'relative' }}>
-                {notifications?.length > 0
-                    && <Label color='red' floating circular size='mini'>
-                        {new Set(notifications.map(n => n.message.conversationId)).size}
-                    </Label>
-                }
-            </Icon>
-            Message
-        </Menu.Item>
-    </Link>
-}
-
-function PeopleItem() {
-    const { data: count } = useQuery('/api/notifications/follow/count', () =>
-        axios.get('/api/notifications/follow/count').then(res => res.data)
-    );
-    return <Link href='/people'>
-        <Menu.Item as='a'>
-            <Icon name='group' style={{ position: 'relative' }}>
                 {count > 0
                     && <Label color='red' floating circular size='mini'>
                         {count}
                     </Label>
                 }
             </Icon>
-            People
+            Message
         </Menu.Item>
     </Link>
 }
