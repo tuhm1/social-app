@@ -87,15 +87,15 @@ function NotificationItem() {
 }
 
 function MessageItem() {
-    const { data: notSeenConversations } = useQuery('/api/notifications/chat', () =>
+    const { data: notifications } = useQuery('/api/notifications/chat', () =>
         axios.get('/api/notifications/chat').then(res => res.data)
     );
     return <Link href='/chat'>
         <Menu.Item as='a'>
             <Icon name='chat' style={{ position: 'relative' }}>
-                {notSeenConversations?.length > 0
+                {notifications?.length > 0
                     && <Label color='red' floating circular size='mini'>
-                        {notSeenConversations.length}
+                        {new Set(notifications.map(n => n.message.conversationId)).size}
                     </Label>
                 }
             </Icon>

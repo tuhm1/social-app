@@ -3,7 +3,7 @@ module.exports = io => {
     const mongoose = require('mongoose');
     const Conversation = require('../db/conversation');
     const Message = require('../db/message');
-    const MessageNotification = require('../db/messageNotification');
+    const Notification = require('../db/notification');
     const app = express.Router();
     const multer = require('multer');
     const CloudinaryStorage = require('./helpers/MulterCloudinaryStorage');
@@ -51,27 +51,8 @@ module.exports = io => {
                 { $lookup: { from: 'users', localField: 'senderId', foreignField: '_id', as: 'sender' } },
                 { $unwind: '$sender' },
                 {
-                    $lookup: {
-                        from: 'message_notifications', as: 'notifications',
-                        let: { messageId: '$_id' },
-                        pipeline: [
-                            {
-                                $match: {
-                                    $expr: {
-                                        $and: [
-                                            { $eq: ['$userId', mongoose.Types.ObjectId(req.user)] },
-                                            { $eq: ['$messageId', '$$messageId'] }
-                                        ]
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
                     $project: {
                         text: 1, files: 1, createdAt: 1,
-                        seen: { $eq: [{ $size: '$notifications' }, 0] },
                         'sender._id': 1, 'sender.firstName': 1, 'sender.lastName': 1, 'sender.avatar': 1
                     }
                 }
@@ -103,12 +84,12 @@ module.exports = io => {
                             resourceType: file.resource_type
                         }))
                     });
-                    const { userIds } = await Conversation.findById(conversationId, { userIds: 1 }).lean();
-                    await MessageNotification.insertMany(
-                        userIds.filter(id => id != req.user)
-                            .map(userId => ({ userId, messageId: message._id }))
-                    );
                     res.sendStatus(200);
+                    const { userIds } = await Conversation.findById(conversationId, { userIds: 1 }).lean();
+                    await Notification.insertMany(
+                        userIds.filter(id => id != req.user)
+                            .map(userId => ({ userId, type: 'message', messageId: message._id }))
+                    );
                     io.emit('message');
                 } catch (error) {
                     res.status(400).json(error);

@@ -1,5 +1,4 @@
 const express = require('express');
-const MessageNotification = require('../db/messageNotification');
 const Notification = require('../db/notification');
 const mongoose = require('mongoose');
 
@@ -31,7 +30,7 @@ app
                 }
             },
             { $sort: { _id: -1 } },
-            
+
             { $lookup: { from: 'likes', localField: 'likeId', foreignField: '_id', as: 'like' } },
             { $set: { like: { $arrayElemAt: ['$like', 0] } } },
             { $lookup: { from: 'users', localField: 'like.userId', foreignField: '_id', as: 'like.user' } },
@@ -64,16 +63,15 @@ app
             });
     })
     .get('/chat', async (req, res) => {
-        const conversationIds = await MessageNotification.aggregate([
-            { $match: { userId: mongoose.Types.ObjectId(req.user) } },
+        const conversationIds = await Notification.aggregate([
+            { $match: { userId: mongoose.Types.ObjectId(req.user), type: 'message' } },
             { $lookup: { from: 'messages', localField: 'messageId', foreignField: '_id', as: 'message' } },
             { $unwind: '$message' },
-            { $group: { _id: '$message.conversationId' } }
         ]);
         res.json(conversationIds);
     })
-    .put('/chat', async (req, res) => {
-        await MessageNotification.deleteMany({ userId: req.user, messageId: { $in: req.body } });
+    .put('/', async (req, res) => {
+        await Notification.deleteMany({ _id: { $in: req.body } });
         res.sendStatus(200);
     })
 

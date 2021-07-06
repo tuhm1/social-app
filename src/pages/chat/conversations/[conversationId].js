@@ -37,12 +37,17 @@ function MessageChat({ conversationId }) {
     const { data: messages, refetch } = useQuery(`/api/chat/conversations/${conversationId}`, () =>
         axios.get(`/api/chat/conversations/${conversationId}`).then(res => res.data)
     );
+    const { data: notifications } = useQuery(`/api/notifications/chat`, () =>
+        axios.get(`/api/notifications/chat`).then(res => res.data)
+    );
     const queryClient = useQueryClient();
     useEffect(() => {
-        if (messages) {
-            const notSeenMessageIds = messages.filter(m => !m.seen).map(m => m._id);
-            if (notSeenMessageIds.length > 0) {
-                axios.put(`/api/notifications/chat`, notSeenMessageIds)
+        if (messages && notifications) {
+            const seen = notifications
+                .filter(n => messages.some(m => m._id === n.messageId))
+                .map(n => n._id);
+            if (seen.length > 0) {
+                axios.put(`/api/notifications`, seen)
                     .then(() => queryClient.invalidateQueries());
             }
         }
