@@ -345,6 +345,7 @@ function ButtonScreen({ peer, socket }) {
                 track.onended = e => {
                     if (!stopped) {
                         stopped = true;
+                        setShare(false);
                         if (peer.signalingState === 'closed') return;
                         peer.removeTrack(sender);
                         peer.getTransceivers().forEach((tc, i) => {
@@ -356,6 +357,7 @@ function ButtonScreen({ peer, socket }) {
                     if (!stopped) {
                         track.stop();
                         stopped = true;
+                        setShare(false);
                         if (peer.signalingState === 'closed') return;
                         peer.removeTrack(sender);
                         peer.getTransceivers().forEach((tc, i) => {
