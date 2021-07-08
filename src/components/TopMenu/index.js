@@ -2,7 +2,7 @@ import axios from 'axios';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { Container, Icon, Label, Menu, Sidebar } from 'semantic-ui-react';
 import AuthModal from '../AuthModal';
 
@@ -63,6 +63,7 @@ export default function TopMenu({ children }) {
                         <Link href={`/users/${currentUserId}`}>
                             <Menu.Item as='a' icon='user' content='Profile' />
                         </Link>
+                        <LogOutItem />
                     </>
                 }
             </Sidebar>
@@ -107,4 +108,13 @@ function MessageItem() {
             Message
         </Menu.Item>
     </Link>
+}
+
+function LogOutItem() {
+    const queryClient = useQueryClient();
+    const onClick = () => {
+        axios.post('/api/auth/logout')
+            .then(() => queryClient.invalidateQueries());
+    }
+    return <Menu.Item icon='log out' content='Log Out' onClick={onClick} />
 }
