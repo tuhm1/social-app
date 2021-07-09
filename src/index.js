@@ -19,6 +19,8 @@ const passport = require('passport');
         Message: require('./db/message')
     });
 
+    await require('./db/ensureAdmin')();
+
     const server = require('http').createServer(express);
     const io = require('socket.io')(server);
 

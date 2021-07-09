@@ -4,8 +4,9 @@ const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     avatar: String,
-    bio: String
-});
+    bio: String,
+    isAdmin: Boolean
+}, { timestamps: true });
 
 userSchema.index({ firstName: 'text', lastName: 'text', username: 'text', email: 'text' });
 
