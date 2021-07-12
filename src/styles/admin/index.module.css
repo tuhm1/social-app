@@ -1,0 +1,32 @@
+.page {
+    display: flex;
+}
+.content {
+    flex-grow: 1;
+    padding: 1em;
+}
+.charts {
+    display: flex;
+}
+.userChart {
+    margin: 1em;
+    width: 50%;
+}
+.postChart {
+    margin: 1em;
+    width: 50%;
+}
+@media screen and (max-width: 700px) {
+    .page {
+        flex-direction: column;
+    }
+    .charts {
+        flex-direction: column;
+    }
+    .userChart {
+        width: 100%;
+    }
+    .postChart {
+        width: 100%;
+    }
+}

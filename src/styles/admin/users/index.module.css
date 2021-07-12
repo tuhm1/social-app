@@ -1,0 +1,12 @@
+.page {
+    display: flex;
+}
+.content {
+    flex-grow: 1;
+    padding: 1em;
+}
+@media screen and (max-width: 700px) {
+    .page {
+        flex-direction: column;
+    }
+}
