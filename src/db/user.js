@@ -1,14 +1,17 @@
 const mongoose = require('mongoose');
-
+const mongooseDelete = require('mongoose-delete');
 const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     avatar: String,
     bio: String,
-    isAdmin: Boolean
+    isAdmin: Boolean,
+    isRoot: Boolean
 }, { timestamps: true });
 
 userSchema.index({ firstName: 'text', lastName: 'text', username: 'text', email: 'text' });
+
+userSchema.plugin(mongooseDelete, { overrideMethods: true });
 
 const User = mongoose.model('User', userSchema);
 

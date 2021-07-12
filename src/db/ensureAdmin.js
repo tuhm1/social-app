@@ -21,7 +21,7 @@ module.exports = async () => {
             return password;
         }
         const password = await readPassword();
-        await LocalUser.create({ firstName, lastName, username, password, isAdmin: true });
+        await LocalUser.create({ firstName, lastName, username, password, isAdmin: true, isRoot: true });
         console.log('Admin created');
     }
 };

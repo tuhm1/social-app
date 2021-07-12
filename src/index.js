@@ -42,7 +42,7 @@ const passport = require('passport');
         .use('/api/follow', require('./api/follow')(io))
         .use('/api/chat', require('./api/chat')(io))
         .use('/api/notifications', require('./api/notifications'))
-
+        .use('/api/admin', require('./api/admin'))
     require('./api/rtc')(io);
 
     const next = require('next')({ dev: process.env.NODE_ENV !== 'production' });

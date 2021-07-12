@@ -10,6 +10,9 @@ export default function TopMenu({ children }) {
     const { data: currentUserId } = useQuery('/api/auth/me', () =>
         axios.get('/api/auth/me').then(res => res.data)
     );
+    const { data: isAdmin } = useQuery('/api/auth/me', () =>
+        axios.get('/api/admin/isadmin').then(res => res.data)
+    );
     const [sidebar, setSidebar] = useState(false);
 
     return <>
@@ -63,6 +66,11 @@ export default function TopMenu({ children }) {
                         <Link href={`/users/${currentUserId}`}>
                             <Menu.Item as='a' icon='user' content='Profile' />
                         </Link>
+                        {isAdmin
+                            && <Link href='/admin'>
+                                <Menu.Item as='a' icon='cogs' content='Admin' />
+                            </Link>
+                        }
                         <LogOutItem />
                     </>
                 }
@@ -118,3 +126,4 @@ function LogOutItem() {
     }
     return <Menu.Item icon='log out' content='Log Out' onClick={onClick} />
 }
+
