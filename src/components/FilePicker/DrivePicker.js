@@ -24,12 +24,13 @@ export default function DrivePicker({ onSelect, multiple, accept }) {
 }
 
 async function auth() {
-    const gAuth = gapi.auth2.getAuthInstance();
+    let gAuth = gapi.auth2.getAuthInstance();
     if (!gAuth) {
         await gapi.auth2.init({
             clientId: process.env.GOOGLE_CLIENT_ID,
             scope: 'https://www.googleapis.com/auth/drive.readonly',
         });
+        gAuth = gapi.auth2.getAuthInstance();
     }
     if (!gAuth.isSignedIn.get())
         await gAuth.signIn();
