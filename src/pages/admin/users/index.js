@@ -4,7 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { Dropdown, Form, Icon, Loader, Menu, Pagination, Table } from "semantic-ui-react";
+import { Dropdown, Form, Icon, Loader, Menu, Pagination, Table, Segment } from "semantic-ui-react";
 import css from '../../../styles/admin/users/index.module.css';
 
 export default function Admin() {
@@ -32,44 +32,55 @@ export default function Admin() {
             <Menu secondary>
                 <Menu.Item header>Users</Menu.Item>
             </Menu>
-            <Filter search={search}
-                onSearch={search => {
-                    setPage(1);
-                    setSearch(search);
-                }}
-                admin={admin}
-                onAdmin={admin => {
-                    setPage(1);
-                    setAdmin(admin);
-                }}
-                active={active}
-                onActive={active => {
-                    setPage(1);
-                    setActive(active);
-                }}
-            />
-            {isFetching && <Loader active inline='centered' />}
-            {data
-                && <>
-                    <Data {...data} />
-                    <Pagination1 page={page} setPage={setPage} limit={limit} setLimit={setLimit} count={data.count} />
-                </>
-            }
+            <Segment>
 
+                <Filter search={search}
+                    onSearch={search => {
+                        setPage(1);
+                        setSearch(search);
+                    }}
+                    admin={admin}
+                    onAdmin={admin => {
+                        setPage(1);
+                        setAdmin(admin);
+                    }}
+                    active={active}
+                    onActive={active => {
+                        setPage(1);
+                        setActive(active);
+                    }}
+                />
+                {isFetching && <Loader active inline='centered' />}
+                {data
+                    && <>
+                        <Data {...data} />
+                        <Pagination1 page={page} setPage={setPage} limit={limit} setLimit={setLimit} count={data.count} />
+                    </>
+                }
+            </Segment>
         </div>
     </div>
 }
 
 function PageMenu() {
-    return <Menu vertical>
+    return <Menu vertical icon='labeled' style={{ minWidth: '200px' }}>
         <Link href='/admin'>
-            <Menu.Item as='a'>Dashboard</Menu.Item>
+            <Menu.Item as='a'>
+                <Icon name='chart bar' />
+                Dashboard
+            </Menu.Item>
         </Link>
         <Link href='/admin/users'>
-            <Menu.Item as='a' active>Users</Menu.Item>
+            <Menu.Item as='a' active>
+                <Icon name='group' />
+                Users
+            </Menu.Item>
         </Link>
         <Link href='/admin/reported'>
-            <Menu.Item as='a'>Reported Posts</Menu.Item>
+            <Menu.Item as='a'>
+                <Icon name='flag' />
+                Reported Posts
+            </Menu.Item>
         </Link>
     </Menu>
 }
@@ -80,7 +91,8 @@ function Filter({ search, onSearch, admin, onAdmin, active, onActive }) {
             e.preventDefault();
             onSearch(e.target.search.value);
         }}>
-            <Form.Input label='Search' type='search' name='search' icon='search' placeholder='Search by name, username, email' defaultValue={search} />
+            <Form.Input label='Search' type='search' name='search' icon='search' placeholder='Search by name, username, email' defaultValue={search}
+                style={{ maxWidth: '500px' }} />
         </Form>
         <Form>
             <Form.Group>

@@ -4,7 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import React from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { Button, Divider, Menu } from "semantic-ui-react";
+import { Button, Divider, Menu, Icon, Segment } from "semantic-ui-react";
 import css from '../../styles/admin/index.module.css';
 
 export default function Reported() {
@@ -35,7 +35,7 @@ export default function Reported() {
             <Menu secondary>
                 <Menu.Item header>Reported</Menu.Item>
             </Menu>
-            <div>
+            <Segment>
                 {data?.map(({ _id, user, post, reason, createdAt }) =>
                     <React.Fragment key={_id}>
                         <div style={{ display: 'flex' }}>
@@ -48,7 +48,7 @@ export default function Reported() {
                                     </span>
                                 </div>
                                 <div>{reason}</div>
-                                <div style={{ border: '1px solid lightgrey' }}>
+                                <div style={{ border: '1px solid lightgrey', padding: '0.5em' }}>
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
                                         <img src={post.user.avatar || '/default-avatar.svg'} style={{ width: '2em', height: '2em', borderRadius: '50%', objectFit: 'cover' }} />
                                         <a style={{ fontWeight: 'bold' }}>{`${post.user.firstName} ${post.user.lastName}`}</a>
@@ -75,21 +75,30 @@ export default function Reported() {
                         <Divider />
                     </React.Fragment>
                 )}
-            </div>
+            </Segment>
         </div>
     </div>
 }
 
 function PageMenu() {
-    return <Menu vertical>
+    return <Menu vertical icon='labeled' style={{ minWidth: '200px' }}>
         <Link href='/admin'>
-            <Menu.Item as='a'>Dashboard</Menu.Item>
+            <Menu.Item as='a'>
+                <Icon name='chart bar' />
+                Dashboard
+            </Menu.Item>
         </Link>
         <Link href='/admin/users'>
-            <Menu.Item as='a'>Users</Menu.Item>
+            <Menu.Item as='a'>
+                <Icon name='group' />
+                Users
+            </Menu.Item>
         </Link>
         <Link href='/admin/reported'>
-            <Menu.Item as='a' active>Reported Posts</Menu.Item>
+            <Menu.Item as='a' active>
+                <Icon name='flag' />
+                Reported Posts
+            </Menu.Item>
         </Link>
     </Menu>
 }

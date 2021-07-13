@@ -59,25 +59,29 @@ export default function Dashboard() {
                 <Menu.Item header>Dashboard</Menu.Item>
             </Menu>
             <div>
-                <div>
-                    <Statistic>
-                        <Statistic.Label>
-                            Users
-                        </Statistic.Label>
-                        <Statistic.Value>
-                            <Icon name='group' />
-                            {usersCount}
-                        </Statistic.Value>
-                    </Statistic>
-                    <Statistic>
-                        <Statistic.Label>
-                            Post
-                        </Statistic.Label>
-                        <Statistic.Value>
-                            <Icon name='images' />
-                            {postsCount}
-                        </Statistic.Value>
-                    </Statistic>
+                <div className={css.stats}>
+                    <Segment style={{ margin: '1em' }}>
+                        <Statistic color='teal'>
+                            <Statistic.Label>
+                                Users
+                            </Statistic.Label>
+                            <Statistic.Value>
+                                <Icon name='group' />
+                                {usersCount}
+                            </Statistic.Value>
+                        </Statistic>
+                    </Segment>
+                    <Segment style={{ margin: '1em' }}>
+                        <Statistic color='blue'>
+                            <Statistic.Label>
+                                Post
+                            </Statistic.Label>
+                            <Statistic.Value>
+                                <Icon name='images' />
+                                {postsCount}
+                            </Statistic.Value>
+                        </Statistic>
+                    </Segment>
                 </div>
                 <div className={css.charts}>
                     <UsersGraph data={users} groupBy={groupUser} setGroupBy={setGroupUser} />
@@ -89,7 +93,7 @@ export default function Dashboard() {
 }
 
 function PageMenu() {
-    return <Menu vertical icon='labeled'>
+    return <Menu vertical icon='labeled' style={{ minWidth: '200px' }}>
         <Link href='/admin'>
             <Menu.Item as='a' active>
                 <Icon name='chart bar' />
@@ -131,7 +135,7 @@ function UsersGraph({ data, groupBy, setGroupBy }) {
         link.click();
         link.remove();
     }
-    return <div className={css.userChart}>
+    return <Segment className={css.userChart} style={{ margin: '1em' }}>
         <Menu secondary pointing>
             <Menu.Item header>New users</Menu.Item>
             <Menu.Item position='right' icon='download' content='Details' onClick={download} />
@@ -154,7 +158,7 @@ function UsersGraph({ data, groupBy, setGroupBy }) {
                 <Tooltip />
             </LineChart>
         </ResponsiveContainer>
-    </div>
+    </Segment>
 }
 
 function PostsGraph({ data, groupBy, setGroupBy }) {
@@ -177,7 +181,7 @@ function PostsGraph({ data, groupBy, setGroupBy }) {
         link.click();
         link.remove();
     }
-    return <div className={css.postChart}>
+    return <Segment className={css.postChart} style={{ margin: '1em' }}>
         <Menu secondary pointing>
             <Menu.Item header>New posts</Menu.Item>
             <Menu.Item position='right' icon='download' content='Details' onClick={download} />
@@ -200,5 +204,5 @@ function PostsGraph({ data, groupBy, setGroupBy }) {
                 <Tooltip />
             </LineChart>
         </ResponsiveContainer>
-    </div>
+    </Segment>
 }
