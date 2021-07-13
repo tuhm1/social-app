@@ -62,17 +62,21 @@ export default function Dashboard() {
                 <div>
                     <Statistic>
                         <Statistic.Label>
-                            <Icon name='group' />
                             Users
                         </Statistic.Label>
-                        <Statistic.Value>{usersCount}</Statistic.Value>
+                        <Statistic.Value>
+                            <Icon name='group' />
+                            {usersCount}
+                        </Statistic.Value>
                     </Statistic>
                     <Statistic>
                         <Statistic.Label>
-                            <Icon name='images' />
                             Post
                         </Statistic.Label>
-                        <Statistic.Value>{postsCount}</Statistic.Value>
+                        <Statistic.Value>
+                            <Icon name='images' />
+                            {postsCount}
+                        </Statistic.Value>
                     </Statistic>
                 </div>
                 <div className={css.charts}>
@@ -85,15 +89,24 @@ export default function Dashboard() {
 }
 
 function PageMenu() {
-    return <Menu vertical>
+    return <Menu vertical icon='labeled'>
         <Link href='/admin'>
-            <Menu.Item as='a' active>Dashboard</Menu.Item>
+            <Menu.Item as='a' active>
+                <Icon name='chart bar' />
+                Dashboard
+            </Menu.Item>
         </Link>
         <Link href='/admin/users'>
-            <Menu.Item as='a'>Users</Menu.Item>
+            <Menu.Item as='a'>
+                <Icon name='group' />
+                Users
+            </Menu.Item>
         </Link>
         <Link href='/admin/reported'>
-            <Menu.Item as='a'>Reported Posts</Menu.Item>
+            <Menu.Item as='a'>
+                <Icon name='flag' />
+                Reported Posts
+            </Menu.Item>
         </Link>
     </Menu>
 }
