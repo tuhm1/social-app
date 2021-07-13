@@ -92,8 +92,8 @@ function PageMenu() {
         <Link href='/admin/users'>
             <Menu.Item as='a'>Users</Menu.Item>
         </Link>
-        <Link href='/admin/posts'>
-            <Menu.Item as='a'>Posts</Menu.Item>
+        <Link href='/admin/reported'>
+            <Menu.Item as='a'>Reported Posts</Menu.Item>
         </Link>
     </Menu>
 }

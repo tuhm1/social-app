@@ -16,10 +16,12 @@ schema.index({ createdAt: -1, _id: -1 });
 schema.index({ userId: 1, createdAt: -1, _id: -1 });
 schema.pre('remove', async function (next) {
     try {
-        const p1 = mongoose.models.like.find({postId: this._id})
+        const p1 = mongoose.models.like.find({ postId: this._id })
             .then(likes => Promise.all(likes.map(l => l.remove())));
-        const p2 = mongoose.models.comment.find({postId: this._id})
+        const p2 = mongoose.models.comment.find({ postId: this._id })
             .then(comments => Promise.all(comments.map(c => c.remove())));
+        const p3 = mongoose.models.reported_post.find({ postId: this._id })
+            .then(reports => Promise.all(reports.map(r => r.remove())))
         await Promise.all([p1, p2]);
         next();
     } catch (error) {

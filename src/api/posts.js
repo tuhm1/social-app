@@ -5,6 +5,7 @@ module.exports = io => {
     const mongoose = require('mongoose');
     const Follow = require('../db/follow');
     const Post = require('../db/post');
+    const ReportedPost = require('../db/reported_post');
     const multer = require('multer');
     const CloudinaryStorage = require('./helpers/MulterCloudinaryStorage');
     const upload = multer({
@@ -15,7 +16,7 @@ module.exports = io => {
     }).array('files');
 
     app
-        .get('/user/posts/:userId',  async (req, res) => {
+        .get('/user/posts/:userId', async (req, res) => {
             const posts = await Post.aggregate([
                 { $match: { userId: mongoose.Types.ObjectId(req.params.userId) } },
                 { $sort: { createdAt: -1 } },
@@ -235,6 +236,20 @@ module.exports = io => {
                     console.error(error);
                     res.sendStatus(500);
                 });
+        })
+        .post('/report/:_id', async (req, res) => {
+            if (!req.user) {
+                return res.status(401).json({ message: 'User is not logged in' });
+            }
+            if (!req.body.reason) {
+                res.status(400).json({ message: 'Reason is required' });
+            }
+            await ReportedPost.create({
+                userId: req.user,
+                postId: req.params._id,
+                reason: req.body.reason
+            });
+            res.sendStatus(200);
         })
     return app;
 }

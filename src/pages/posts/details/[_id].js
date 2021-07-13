@@ -10,7 +10,8 @@ import {
     Message, Placeholder, Segment,
     Modal,
     TextArea,
-    Dropdown
+    Dropdown,
+    Radio
 } from "semantic-ui-react";
 import Carousel from '../../../components/Carousel';
 import css from '../../../styles/PostDetails.module.css';
@@ -326,7 +327,7 @@ function DeleteComment({ _id }) {
 function DropdownActions({ _id, userId, currentUserId }) {
     const queryClient = useQueryClient();
     const router = useRouter();
-    if (userId !== currentUserId) return null;
+    const [report, setReport] = useState(false);
     const onDelete = () => {
         if (confirm('Are you sure you want to delete?')) {
             axios.delete(`/api/posts/${_id}`)
@@ -343,10 +344,134 @@ function DropdownActions({ _id, userId, currentUserId }) {
     }
     return <Dropdown item icon='ellipsis vertical' className='pointing top right'>
         <Dropdown.Menu>
-            <Link href={`/posts/edit/${_id}`}>
-                <Dropdown.Item icon='edit' text='Edit' as='a' />
-            </Link>
-            <Dropdown.Item onClick={onDelete} icon='trash' text='Delete' />
+            {userId === currentUserId
+                ? <>
+                    <Link href={`/posts/edit/${_id}`}>
+                        <Dropdown.Item icon='edit' text='Edit' as='a' />
+                    </Link>
+                    <Dropdown.Item onClick={onDelete} icon='trash' text='Delete' />
+                </>
+                : <>
+                    <Dropdown.Item onClick={() => setReport(true)} icon='warning' text='Report' />
+                    {report && <ReportModal postId={_id} onDone={() => setReport(false)} />}
+                </>
+            }
         </Dropdown.Menu>
     </Dropdown>
+}
+
+function ReportModal({ postId, onDone }) {
+    const queryClient = useQueryClient();
+    const [select, setSelect] = useState();
+    const [success, setSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const onSelect = (_, { value }) => setSelect(value);
+    const onSubmit = e => {
+        e.preventDefault();
+        let reason = select !== 'Other'
+            ? select
+            : e.target.reasontext.value;
+        setLoading(true);
+        axios.post(`/api/posts/report/${postId}`, { reason })
+            .then(() => {
+                setSuccess(true);
+                setTimeout(() => onDone(), 1000);
+            })
+            .catch(error => {
+                alert(error.response?.data.message || error.message);
+            })
+            .finally(() => {
+                setLoading(false);
+                queryClient.invalidateQueries();
+            });
+    }
+    return <Modal
+        closeIcon
+        open={true}
+        onClose={() => onDone()}
+        size='small'
+    >
+        <Modal.Header content='Report' />
+        <Modal.Content>
+            <p>Please tell us what's wrong with this post</p>
+            <Form onSubmit={onSubmit}>
+                <Form.Field>
+                    <Radio
+                        name='reasonselect'
+                        label='Sexual content'
+                        value='Sexual content'
+                        checked={select === 'Sexual content'}
+                        onChange={onSelect}
+                    />
+                </Form.Field>
+                <Form.Field>
+                    <Radio
+                        name='reasonselect'
+                        label='Violent content'
+                        value='Violent content'
+                        checked={select === 'Violent content'}
+                        onChange={onSelect}
+                    />
+                </Form.Field>
+                <Form.Field>
+                    <Radio
+                        name='reasonselect'
+                        label='Harmful dangerous acts'
+                        value='Harmful dangerous acts'
+                        checked={select === 'Harmful dangerous acts'}
+                        onChange={onSelect}
+                    />
+                </Form.Field>
+                <Form.Field>
+                    <Radio
+                        name='reasonselect'
+                        label='Child abuse'
+                        value='Child abuse'
+                        checked={select === 'Child abuse'}
+                        onChange={onSelect}
+                    />
+                </Form.Field>
+                <Form.Field>
+                    <Radio
+                        name='reasonselect'
+                        label='Promotes terrorism'
+                        value='Promotes terrorism'
+                        checked={select === 'Promotes terrorism'}
+                        onChange={onSelect}
+                    />
+                </Form.Field>
+                <Form.Field>
+                    <Radio
+                        name='reasonselect'
+                        label='Spam or misleading'
+                        value='Spam or misleading'
+                        checked={select === 'Spam or misleading'}
+                        onChange={onSelect}
+                    />
+                </Form.Field>
+                <Form.Field>
+                    <Radio
+                        name='reasonselect'
+                        label='Other'
+                        value='Other'
+                        checked={select === 'Other'}
+                        onChange={onSelect}
+                    />
+                </Form.Field>
+                {select === 'Other'
+                    && <Form.TextArea required placeholder='Explain the issue here' name='reasontext' />
+                }
+                <Button type='submit' loading={loading}>Report</Button>
+                {success
+                    && <Message icon success>
+                        <Icon name='check' />
+                        <Message.Content>
+                            <Message.Header>Reported</Message.Header>
+                            Thank you for your concern.
+                        </Message.Content>
+                    </Message>
+                }
+            </Form>
+        </Modal.Content>
+    </Modal>
 }

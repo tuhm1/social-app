@@ -1,6 +1,7 @@
 const express = require('express');
 const { User } = require('../db/user');
 const Post = require('../db/post');
+const ReportedPost = require('../db/reported_post');
 const app = express.Router();
 app
     .get('/isadmin', async (req, res) => {
@@ -173,5 +174,35 @@ app
             ]);
             res.json(result);
         }
+    })
+    .get('/posts/reported', async (req, res) => {
+        if (!req.user) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        const user = await User.findById(req.user);
+        if (!user.isAdmin) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        const reported = await ReportedPost.aggregate([
+            { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'user' } },
+            { $set: { user: { $arrayElemAt: ['$user', 0] } } },
+            { $lookup: { from: 'posts', localField: 'postId', foreignField: '_id', as: 'post' } },
+            { $set: { post: { $arrayElemAt: ['$post', 0] } } },
+            { $lookup: { from: 'users', localField: 'post.userId', foreignField: '_id', as: 'post.user' } },
+            { $set: { 'post.user': { $arrayElemAt: ['$post.user', 0] } } },
+        ]);
+        res.json(reported);
+    })
+    .post('/posts/reported/delete/:postId', async (req, res) => {
+        if (!req.user) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        const user = await User.findById(req.user);
+        if (!user.isAdmin) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        const post = await Post.findById(req.params.postId);
+        await post.remove();
+        res.sendStatus(200);
     })
 module.exports = app;
