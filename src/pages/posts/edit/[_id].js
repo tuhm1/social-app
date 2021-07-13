@@ -13,7 +13,7 @@ export default function EditPost() {
         axios.get(`/api/posts/details/${_id}`).then(res => res.data)
     );
     if (isLoading) return null;
-    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em', background: 'white', minHeight: '100%' }}>
         <Head>
             <title>Edit Post</title>
         </Head>

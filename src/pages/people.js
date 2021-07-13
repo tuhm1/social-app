@@ -31,7 +31,7 @@ export async function getServerSideProps({ req }) {
 }
 
 export default function People({ following, followers }) {
-    return <div style={{ maxWidth: '700px', 'margin': 'auto', padding: '1em' }}>
+    return <div style={{ maxWidth: '700px', 'margin': 'auto', padding: '1em', minHeight: '100%', background: 'white' }}>
         <Head>
             <title>People</title>
         </Head>

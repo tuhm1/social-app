@@ -55,7 +55,7 @@ export default function Post() {
                     </div>
                     <DropdownActions _id={_id} userId={user._id} currentUserId={currentUserId} />
                 </div>
-                <p>
+                <p style={{ whiteSpace: 'pre-line' }}>
                     {text}
                 </p>
                 <div>

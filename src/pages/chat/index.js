@@ -16,7 +16,7 @@ export default function ChatIndex() {
         <Head>
             <title>Chat</title>
         </Head>
-        <div style={{ maxWidth: '800px', margin: 'auto', padding: '1em' }}>
+        <div style={{ maxWidth: '800px', margin: 'auto', padding: '1em', background: 'white', minHeight: '100%' }}>
             <Menu secondary pointing>
                 <Menu.Item header>Chat</Menu.Item>
                 <Link href='/chat/create'>

@@ -31,7 +31,7 @@ export default function Notifications() {
         axios.put('/api/notifications/general', [_id])
             .then(() => queryClient.invalidateQueries());
     }
-    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em', minHeight: '100%', background: 'white' }}>
         <Head>
             <title>Notifications</title>
         </Head>

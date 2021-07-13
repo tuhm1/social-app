@@ -20,7 +20,7 @@ export default function CreateConversation() {
                 router.push(`/chat/conversations/${conversationId}`);
             });
     }
-    return <Form onSubmit={onSubmit} size='large' style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+    return <Form onSubmit={onSubmit} size='large' style={{ maxWidth: '700px', margin: 'auto', padding: '1em', background: 'white', minHeight: '100%' }}>
         <Header>New Conversation</Header>
         <Form.Input name='title' id='title' label='Title' placeholder='Title' />
         {users.length > 0

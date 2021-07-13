@@ -17,7 +17,7 @@ export default function Profile() {
     );
     if (!data) return null;
     const { user, followersCount, followed, postsCount, currentUserId } = data;
-    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em', minHeight: '100%', background: 'white' }}>
         <Head>
             <title>{`${user.firstName} ${user.lastName}`}</title>
         </Head>

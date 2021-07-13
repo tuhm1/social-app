@@ -10,7 +10,7 @@ export default function Following() {
     const { data: posts, error } = useQuery('/api/posts/following', () =>
         axios.get('/api/posts/following').then(res => res.data)
     );
-    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+    return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em', background: 'white', minHeight: '100%' }}>
         <PageMenu />
         {error
             ? <Segment placeholder>

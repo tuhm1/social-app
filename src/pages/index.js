@@ -10,7 +10,7 @@ export default function Home() {
   const { data: posts } = useQuery('/api/posts/home', () =>
     axios.get('/api/posts/home').then(res => res.data)
   );
-  return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em' }}>
+  return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em', background: 'white', minHeight: '100%' }}>
     <PageMenu />
     {posts?.map(p => <PostCard key={p._id} {...p} />)}
   </div>

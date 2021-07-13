@@ -1,4 +1,5 @@
 import 'semantic-ui-css/semantic.min.css';
+import '../styles/global.css'
 import TopNav from '../components/TopMenu';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
