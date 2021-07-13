@@ -14,10 +14,10 @@ export default function TopMenu({ children }) {
     const { data: isAdmin } = useQuery('/api/auth/me', () =>
         axios.get('/api/admin/isadmin').then(res => res.data)
     );
-    const { data: messageCount } = useQuery('/api/notifications/general/count', () =>
+    const { data: notiCount } = useQuery('/api/notifications/general/count', () =>
         axios.get('/api/notifications/general/count').then(res => res.data)
     );
-    const { data: notiCount } = useQuery('/api/notifications/chat/count', () =>
+    const { data: chatCount } = useQuery('/api/notifications/chat/count', () =>
         axios.get('/api/notifications/chat/count').then(res => res.data)
     );
     const [sidebar, setSidebar] = useState(false);
@@ -47,9 +47,9 @@ export default function TopMenu({ children }) {
                                 <Link href='/chat'>
                                     <Menu.Item as='a'>
                                         <Icon name='chat' style={{ position: 'relative' }}>
-                                            {messageCount > 0
+                                            {chatCount > 0
                                                 && <Label color='red' floating circular size='mini'>
-                                                    {messageCount}
+                                                    {chatCount}
                                                 </Label>
                                             }
                                         </Icon>
@@ -93,9 +93,9 @@ export default function TopMenu({ children }) {
                         <Link href='/chat'>
                             <Menu.Item as='a'>
                                 <Icon name='chat' style={{ position: 'relative' }}>
-                                    {messageCount > 0
+                                    {chatCount > 0
                                         && <Label color='red' floating circular size='mini'>
-                                            {messageCount}
+                                            {chatCount}
                                         </Label>
                                     }
                                 </Icon>
