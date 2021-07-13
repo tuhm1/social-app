@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { Container, Icon, Label, Menu, Sidebar } from 'semantic-ui-react';
@@ -12,6 +13,12 @@ export default function TopMenu({ children }) {
     );
     const { data: isAdmin } = useQuery('/api/auth/me', () =>
         axios.get('/api/admin/isadmin').then(res => res.data)
+    );
+    const { data: messageCount } = useQuery('/api/notifications/general/count', () =>
+        axios.get('/api/notifications/general/count').then(res => res.data)
+    );
+    const { data: notiCount } = useQuery('/api/notifications/chat/count', () =>
+        axios.get('/api/notifications/chat/count').then(res => res.data)
     );
     const [sidebar, setSidebar] = useState(false);
 
@@ -35,7 +42,33 @@ export default function TopMenu({ children }) {
                         <Menu.Item header as='a'>Socialize</Menu.Item>
                     </Link>
                     <Menu.Menu position='right'>
-
+                        {currentUserId
+                            ? <>
+                                <Link href='/chat'>
+                                    <Menu.Item as='a'>
+                                        <Icon name='chat' style={{ position: 'relative' }}>
+                                            {messageCount > 0
+                                                && <Label color='red' floating circular size='mini'>
+                                                    {messageCount}
+                                                </Label>
+                                            }
+                                        </Icon>
+                                    </Menu.Item>
+                                </Link>
+                                <Link href='/notifications'>
+                                    <Menu.Item as='a'>
+                                        <Icon name='bell' style={{ position: 'relative' }}>
+                                            {notiCount > 0
+                                                && <Label color='red' floating circular size='mini'>
+                                                    {notiCount}
+                                                </Label>
+                                            }
+                                        </Icon>
+                                    </Menu.Item>
+                                </Link>
+                            </>
+                            : <AuthModal trigger={<Menu.Item as='a' icon='user' content='Log In' />} />
+                        }
                     </Menu.Menu>
                 </Container>
             </Menu>
@@ -46,7 +79,6 @@ export default function TopMenu({ children }) {
                 animation='overlay'
                 style={{ height: '100vh', overflow: 'visible' }}
                 width='thin'
-                inverted
                 icon='labeled'
                 vertical
             >
@@ -58,8 +90,30 @@ export default function TopMenu({ children }) {
                 }
                 {currentUserId &&
                     <>
-                        <MessageItem />
-                        <NotificationItem />
+                        <Link href='/chat'>
+                            <Menu.Item as='a'>
+                                <Icon name='chat' style={{ position: 'relative' }}>
+                                    {messageCount > 0
+                                        && <Label color='red' floating circular size='mini'>
+                                            {messageCount}
+                                        </Label>
+                                    }
+                                </Icon>
+                                Message
+                            </Menu.Item>
+                        </Link>
+                        <Link href='/notifications'>
+                            <Menu.Item as='a'>
+                                <Icon name='bell' style={{ position: 'relative' }}>
+                                    {notiCount > 0
+                                        && <Label color='red' floating circular size='mini'>
+                                            {notiCount}
+                                        </Label>
+                                    }
+                                </Icon>
+                                Notifications
+                            </Menu.Item>
+                        </Link>
                         <Link href='/people'>
                             <Menu.Item as='a' icon='group' content='People' />
                         </Link>
@@ -82,47 +136,15 @@ export default function TopMenu({ children }) {
     </>
 }
 
-function NotificationItem() {
-    const { data: count } = useQuery('/api/notifications/general/count', () =>
-        axios.get('/api/notifications/general/count').then(res => res.data)
-    );
-    return <Link href='/notifications'>
-        <Menu.Item as='a'>
-            <Icon name='bell' style={{ position: 'relative' }}>
-                {count > 0
-                    && <Label color='red' floating circular size='mini'>
-                        {count}
-                    </Label>
-                }
-            </Icon>
-            Notifications
-        </Menu.Item>
-    </Link>
-}
-
-function MessageItem() {
-    const { data: count } = useQuery('/api/notifications/chat/count', () =>
-        axios.get('/api/notifications/chat/count').then(res => res.data)
-    );
-    return <Link href='/chat'>
-        <Menu.Item as='a'>
-            <Icon name='chat' style={{ position: 'relative' }}>
-                {count > 0
-                    && <Label color='red' floating circular size='mini'>
-                        {count}
-                    </Label>
-                }
-            </Icon>
-            Message
-        </Menu.Item>
-    </Link>
-}
-
 function LogOutItem() {
+    const router = useRouter();
     const queryClient = useQueryClient();
     const onClick = () => {
         axios.post('/api/auth/logout')
-            .then(() => queryClient.invalidateQueries());
+            .then(() => {
+                router.push('/');
+                queryClient.invalidateQueries();
+            });
     }
     return <Menu.Item icon='log out' content='Log Out' onClick={onClick} />
 }
