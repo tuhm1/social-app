@@ -14,6 +14,8 @@ schema.plugin(mongooseDelete);
 
 schema.index({ createdAt: -1, _id: -1 });
 schema.index({ userId: 1, createdAt: -1, _id: -1 });
+schema.index({ text: 'text' });
+
 schema.pre('remove', async function (next) {
     try {
         const p1 = mongoose.models.like.find({ postId: this._id })
