@@ -5,6 +5,7 @@ const schema = new mongoose.Schema({
     followingId: { type: mongoose.Types.ObjectId, required: true }
 }, { timestamps: true });
 schema.index({ followingId: 1, followerId: 1 }, { unique: true });
+schema.index({ followerId: 1, followingId: 1 }, { unique: true });
 schema.plugin(mongooseDelete);
 schema.pre('remove', async function (next) {
     try {

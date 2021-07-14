@@ -8,8 +8,8 @@ const schema = new mongoose.Schema({
 }, { timestamps: true });
 schema.plugin(mongooseDelete);
 
-schema.index({ postId: 1 });
-schema.index({ replyTo: 1, postId: 1, createdAt: 1 });
+schema.index({ postId: 1, createdAt: -1 });
+schema.index({ replyTo: 1, createdAt: -1 });
 
 schema.pre('remove', async function (next) {
     try {

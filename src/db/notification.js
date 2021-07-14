@@ -7,6 +7,7 @@ const schema = new mongoose.Schema({
     seen: Date
 }, { strict: false });
 schema.plugin(mongooseDelete);
+schema.index({ userId: 1 });
 const Notification = mongoose.model('notification', schema);
 
 module.exports = Notification;

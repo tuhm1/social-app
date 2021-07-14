@@ -12,8 +12,7 @@ const schema = new mongoose.Schema({
 
 schema.plugin(mongooseDelete);
 
-schema.index({ createdAt: -1, _id: -1 });
-schema.index({ userId: 1, createdAt: -1, _id: -1 });
+schema.index({ userId: 1, createdAt: -1 });
 schema.index({ text: 'text' });
 
 schema.pre('remove', async function (next) {

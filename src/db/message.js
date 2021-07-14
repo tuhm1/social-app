@@ -11,7 +11,6 @@ const schema = new mongoose.Schema({
 }, { timestamps: true });
 
 schema.index({ conversationId: 1, createdAt: -1 });
-schema.index({ notSeen: 1 });
 
 const Message = mongoose.model('message', schema);
 module.exports = Message;
