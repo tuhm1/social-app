@@ -26,16 +26,23 @@ app
             { $set: { like: { $arrayElemAt: ['$like', 0] } } },
             { $lookup: { from: 'users', localField: 'like.userId', foreignField: '_id', as: 'like.user' } },
             { $set: { 'like.user': { $arrayElemAt: ['$like.user', 0] } } },
+            { $lookup: { from: 'posts', localField: 'like.postId', foreignField: '_id', as: 'like.post' } },
+            { $set: { 'like.post': { $arrayElemAt: ['$like.post', 0] } } },
 
             { $lookup: { from: 'comments', localField: 'commentId', foreignField: '_id', as: 'comment' } },
             { $set: { comment: { $arrayElemAt: ['$comment', 0] } } },
             { $lookup: { from: 'users', localField: 'comment.userId', foreignField: '_id', as: 'comment.user' } },
             { $set: { 'comment.user': { $arrayElemAt: ['$comment.user', 0] } } },
+            { $lookup: { from: 'posts', localField: 'comment.postId', foreignField: '_id', as: 'comment.post' } },
+            { $set: { 'comment.post': { $arrayElemAt: ['$comment.post', 0] } } },
 
             { $lookup: { from: 'comments', localField: 'replyId', foreignField: '_id', as: 'reply' } },
             { $set: { reply: { $arrayElemAt: ['$reply', 0] } } },
             { $lookup: { from: 'users', localField: 'reply.userId', foreignField: '_id', as: 'reply.user' } },
             { $set: { 'reply.user': { $arrayElemAt: ['$reply.user', 0] } } },
+            { $lookup: { from: 'comments', localField: 'reply.replyTo', foreignField: '_id', as: 'reply.comment' } },
+            { $set: { 'reply.comment': { $arrayElemAt: ['$reply.comment', 0] } } },
+
         ]).then(result => {
             res.json(result);
         }).catch(error => {

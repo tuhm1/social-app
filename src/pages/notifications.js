@@ -53,55 +53,67 @@ export default function Notifications() {
     </div>
 }
 
-function LikeNotification({ like: { postId, user: { _id, firstName, lastName, avatar }, createdAt }, seen, onClick }) {
-    return <Link href={`/posts/details/${postId}`}>
-        <List.Item  onClick={onClick} style={{ display: 'flex', background: !seen && 'rgba(0, 0, 0, 0.03)' }}>
-            <Image src={avatar || '/default-avatar.svg'} avatar />
-            <List.Content style={{ flexGrow: 1, display: 'flex' }}>
-                <div className={css.summary}>
-                    <Link href={`/users/${_id}`}>
-                        <a className={css.username}>{`${firstName} ${lastName}`}</a>
-                    </Link> liked your post.
-                </div>
-                <span className={css.time}>
-                    {new Date(createdAt).toLocaleString()}
-                </span>
+function LikeNotification({ like: { post, user, createdAt }, seen, onClick }) {
+    return <Link href={`/posts/details/${post._id}`}>
+        <List.Item onClick={onClick} style={{ display: 'flex', background: !seen && 'rgba(0, 0, 0, 0.03)' }}>
+            <Image src={user.avatar || '/default-avatar.svg'} avatar />
+            <List.Content style={{ flexGrow: 1, width: 0 }}>
+                <List.Header style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <Link href={`/users/${user._id}`}>
+                        <a>{`${user.firstName} ${user.lastName}`}</a>
+                    </Link> liked your post: "{post.text}"
+                </List.Header>
+                <List.Description>
+                    <span className={css.time}>
+                        {new Date(createdAt).toLocaleString()}
+                    </span>
+                </List.Description>
             </List.Content>
         </List.Item>
     </Link>
 }
 
-function CommentNotification({ comment: { postId, user: { _id, firstName, lastName, avatar }, createdAt }, seen, onClick }) {
+function CommentNotification({ comment: { postId, text, post, user, createdAt }, seen, onClick }) {
     return <Link href={`/posts/details/${postId}`}>
         <List.Item onClick={onClick} style={{ display: 'flex', background: !seen && 'rgba(0, 0, 0, 0.03)' }}>
-            <Image src={avatar || '/default-avatar.svg'} avatar />
-            <List.Content style={{ flexGrow: 1, display: 'flex' }}>
-                <div className={css.summary}>
-                    <Link href={`/users/${_id}`}>
-                        <a className={css.username}>{`${firstName} ${lastName}`}</a>
-                    </Link> commented on your post.
-                </div>
-                <span className={css.time}>
-                    {new Date(createdAt).toLocaleString()}
-                </span>
+            <Image src={user.avatar || '/default-avatar.svg'} avatar />
+            <List.Content style={{ flexGrow: 1, width: 0 }}>
+                <List.Header style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <Link href={`/users/${user._id}`}>
+                        <a>{`${user.firstName} ${user.lastName}`}</a>
+                    </Link> commented on your post: "{post.text}"
+                </List.Header>
+                <List.Description>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {text}
+                    </div>
+                    <span className={css.time}>
+                        {new Date(createdAt).toLocaleString()}
+                    </span>
+                </List.Description>
             </List.Content>
         </List.Item>
     </Link>
 }
 
-function ReplyNotification({ reply: { postId, user: { _id, firstName, lastName, avatar }, createdAt }, seen, onClick }) {
+function ReplyNotification({ reply: { postId, text, comment, user, createdAt }, seen, onClick }) {
     return <Link href={`/posts/details/${postId}`}>
         <List.Item onClick={onClick} style={{ display: 'flex', background: !seen && 'rgba(0, 0, 0, 0.03)' }}>
-            <Image src={avatar || '/default-avatar.svg'} avatar />
-            <List.Content style={{ flexGrow: 1, display: 'flex' }}>
-                <div className={css.summary}>
-                    <Link href={`/users/${_id}`}>
-                        <a className={css.username}>{`${firstName} ${lastName}`}</a>
-                    </Link> replied to your comment.
-                </div>
-                <span className={css.time}>
-                    {new Date(createdAt).toLocaleString()}
-                </span>
+            <Image src={user.avatar || '/default-avatar.svg'} avatar />
+            <List.Content style={{ flexGrow: 1, width: 0 }}>
+                <List.Header style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <Link href={`/users/${user._id}`}>
+                        <a>{`${user.firstName} ${user.lastName}`}</a>
+                    </Link> replied to your comment: "{comment.text}"
+                </List.Header>
+                <List.Description>
+                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {text}
+                    </div>
+                    <span className={css.time}>
+                        {new Date(createdAt).toLocaleString()}
+                    </span>
+                </List.Description>
             </List.Content>
         </List.Item>
     </Link>
@@ -111,15 +123,17 @@ function FollowNotification({ follow: { follower: { _id, firstName, lastName, av
     return <Link href={`/users/${_id}`}>
         <List.Item onClick={onClick} style={{ display: 'flex', background: !seen && 'rgba(0, 0, 0, 0.03)' }}>
             <Image src={avatar || '/default-avatar.svg'} avatar />
-            <List.Content style={{ flexGrow: 1, display: 'flex' }}>
-                <div className={css.summary}>
+            <List.Content style={{ flexGrow: 1, width: 0 }}>
+                <List.Header>
                     <Link href={`/users/${_id}`}>
                         <a className={css.username}>{`${firstName} ${lastName}`}</a>
-                    </Link> followed you.
-                </div>
-                <span className={css.time}>
-                    {new Date(createdAt).toLocaleString()}
-                </span>
+                    </Link> is following you.
+                </List.Header>
+                <List.Description>
+                    <span className={css.time}>
+                        {new Date(createdAt).toLocaleString()}
+                    </span>
+                </List.Description>
             </List.Content>
         </List.Item>
     </Link>
