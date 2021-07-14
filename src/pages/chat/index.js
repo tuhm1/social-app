@@ -49,7 +49,7 @@ export default function ChatIndex() {
                                     {lastMessage
                                         && <div style={{ display: 'flex' }}>
                                             {newsCount && <Label color='red' circular size='mini'>{newsCount}</Label>}
-                                            <div style={{ flexGrow: 1 }}>
+                                            <div style={{ flexGrow: 1, width: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                 {lastMessage.files.length > 0
                                                     ? <><a>{lastMessage.firstName}</a> sent some files</>
                                                     : <><a>{lastMessage.sender.firstName}</a>: {lastMessage.text}</>
