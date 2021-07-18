@@ -4,7 +4,14 @@ const schema = new mongoose.Schema({
     text: String,
     files: [{
         url: { type: String, required: true },
-        resourceType: { type: String, required: true }
+        resourceType: { type: String, required: true },
+        faces: [{
+            x: { type: Number, required: true },
+            y: { type: Number, required: true },
+            width: { type: Number, required: true },
+            height: { type: Number, required: true },
+            userId: mongoose.Types.ObjectId
+        }]
     }],
     tags: [String],
     userId: { type: mongoose.Types.ObjectId, required: true }

@@ -1,9 +1,8 @@
 import { useQueryClient } from 'react-query';
 import Link from 'next/link';
 import css from '../../styles/PostCard.module.css';
-import Carousel from '../Carousel';
-import { Button } from 'semantic-ui-react';
-import { useState } from 'react';
+import { Button, Label } from 'semantic-ui-react';
+import { useState, useCallback } from 'react';
 import axios from 'axios';
 
 export default function PostCard({ _id, text, files, user, likesCount, liked, commentsCount, createdAt }) {
@@ -34,7 +33,36 @@ export default function PostCard({ _id, text, files, user, likesCount, liked, co
                 </>
             }
         </p>
-        {files?.length > 0 && <Carousel files={files} className={css.carousel} />}
+        {files?.length > 0
+            && <div className={css.medias}>
+                {files.map(file =>
+                    <div className={css.slide}>
+                        <div className={css.overlayContainer}>
+                            {file.resourceType === 'image'
+                                ? <>
+                                    <img src={file.url} className={css.media} />
+                                    {file.faces?.map(face =>
+                                        face.user && <div className={css.face} style={{
+                                            left: face.x * 100 + '%',
+                                            top: face.y * 100 + '%',
+                                            width: face.width * 100 + '%',
+                                            height: face.height * 100 + '%'
+                                        }}>
+                                            <Link href={`/users/${face.user._id}`}>
+                                                <Label as='a' size='mini' className={css.faceLabel} color='teal'>
+                                                    {`${face.user.firstName} ${face.user.lastName}`}
+                                                </Label>
+                                            </Link>
+                                        </div>
+                                    )}
+                                </>
+                                : <video src={file.url} className={css.media} controls />
+                            }
+                        </div>
+                    </div>
+                )}
+            </div>
+        }
         <div className={css.buttons}>
             <LikeButton postId={_id} likesCount={likesCount} liked={liked} />
             <Link href={`/posts/details/${_id}`}>
@@ -85,4 +113,14 @@ function LikeButton({ postId, likesCount, liked }) {
         basic
         loading={response.status === 'loading'}
     />
+}
+
+function useClientRect() {
+    const [rect, setRect] = useState(null);
+    const ref = useCallback(node => {
+        if (node !== null) {
+            setRect(node.getBoundingClientRect());
+        }
+    }, []);
+    return [rect, ref];
 }

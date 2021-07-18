@@ -36,7 +36,9 @@ function PageMenu() {
             <Link href='/search'>
                 <Menu.Item as='a' icon='search' />
             </Link>
-            <PostCreateModal trigger={<Menu.Item as='a' icon='edit' />} />
+            <Link href='/posts/create'>
+                <Menu.Item as='a' icon='edit' />
+            </Link>
         </Menu.Menu>
     </Menu>
 }

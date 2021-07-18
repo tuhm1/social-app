@@ -28,7 +28,8 @@ export default function Profile() {
                     panes={[
                         { menuItem: 'Posts', render: () => <Posts userId={_id} /> },
                         { menuItem: 'Images', render: () => <Images userId={_id} /> },
-                        { menuItem: 'Videos', render: () => <Videos userId={_id} /> }
+                        { menuItem: 'Videos', render: () => <Videos userId={_id} /> },
+                        { menuItem: 'Tagged', render: () => <Tagged userId={_id} /> }
                     ]}
                 />
             </>
@@ -154,6 +155,21 @@ function Videos({ userId }) {
             <Link href={`/posts/details/${p._id}`} key={p.files._id}>
                 <a>
                     <video src={p.files.url} style={{ width: '33%', aspectRatio: '1/1', objectFit: 'cover' }} controls />
+                </a>
+            </Link>
+        )}
+    </div>
+}
+
+function Tagged({ userId }) {
+    const { data: posts } = useQuery(`/api/posts/user/tagged/${userId}`, () =>
+        axios.get(`/api/posts/user/tagged/${userId}`).then(res => res.data)
+    );
+    return <div>
+        {posts?.map(p =>
+            <Link href={`/posts/details/${p._id}`} key={p.files._id}>
+                <a>
+                    <img src={p.files.url} style={{ width: '33%', aspectRatio: '1/1', objectFit: 'cover' }} controls />
                 </a>
             </Link>
         )}

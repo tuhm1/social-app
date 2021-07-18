@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -6,16 +7,9 @@ import { useQuery, useQueryClient } from 'react-query';
 import {
     Button,
     Comment, Container,
-    Divider, Form, Header, Icon,
-    Message, Placeholder, Segment,
-    Modal,
-    TextArea,
-    Dropdown,
-    Radio
+    Divider, Dropdown, Form, Header, Icon, Label, Message, Modal, Placeholder, Radio, Segment
 } from "semantic-ui-react";
-import Carousel from '../../../components/Carousel';
 import css from '../../../styles/PostDetails.module.css';
-import Head from 'next/head';
 
 export default function Post() {
     const router = useRouter();
@@ -36,8 +30,8 @@ export default function Post() {
         </Head>
         <div className={css.container}>
             {files?.length > 0 &&
-                <div className={css.media}>
-                    <Carousel files={files} />
+                <div className={css.medias}>
+                    <Medias files={files} />
                 </div>
             }
             <div className={css.text}>
@@ -66,6 +60,37 @@ export default function Post() {
             </div>
         </div>
     </>
+}
+
+function Medias({ files }) {
+    return <div className={css.slides}>
+        {files.map(file =>
+            <div className={css.slide}>
+                <div className={css.overlayContainer}>
+                    {file.resourceType === 'image'
+                        ? <>
+                            <img src={file.url} className={css.media} />
+                            {file.faces?.map(face =>
+                                face.user && <div className={css.face} style={{
+                                    left: face.x * 100 + '%',
+                                    top: face.y * 100 + '%',
+                                    width: face.width * 100 + '%',
+                                    height: face.height * 100 + '%'
+                                }}>
+                                    <Link href={`/users/${face.user._id}`}>
+                                        <Label as='a' size='mini' className={css.faceLabel} color='teal'>
+                                            {`${face.user.firstName} ${face.user.lastName}`}
+                                        </Label>
+                                    </Link>
+                                </div>
+                            )}
+                        </>
+                        : <video src={file.url} className={css.media} controls />
+                    }
+                </div>
+            </div>
+        )}
+    </div>
 }
 
 function LikeButton({ postId, likes, currentUserId }) {

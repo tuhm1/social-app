@@ -5,6 +5,7 @@ module.exports = io => {
     const mongoose = require('mongoose');
     const Follow = require('../db/follow');
     const Post = require('../db/post');
+    const { User } = require('../db/user');
     const ReportedPost = require('../db/reported_post');
     const multer = require('multer');
     const CloudinaryStorage = require('./helpers/MulterCloudinaryStorage');
@@ -59,6 +60,21 @@ module.exports = io => {
                     }
                 },
             ]);
+            const ids = [];
+            posts.forEach(post => {
+                post.files.forEach(file => {
+                    file.faces?.forEach(face => face.userId && ids.push(face.userId));
+                });
+            });
+            const users = await User.find({ _id: { $in: ids } });
+            posts.forEach(post => {
+                post.files.forEach(file => {
+                    file.faces?.forEach(face => {
+                        if (face.userId)
+                            face.user = users.find(u => u._id.equals(face.userId));
+                    });
+                });
+            });
             res.json(posts);
         })
         .get('/user/images/:userId', async (req, res) => {
@@ -75,6 +91,15 @@ module.exports = io => {
                 { $match: { userId: mongoose.Types.ObjectId(req.params.userId) } },
                 { $unwind: '$files' },
                 { $match: { 'files.resourceType': 'video' } },
+                { $sort: { createdAt: -1 } },
+            ]);
+            res.json(posts);
+        })
+        .get('/user/tagged/:userId', async (req, res) => {
+            const posts = await Post.aggregate([
+                { $match: { 'files.faces.userId': mongoose.Types.ObjectId(req.params.userId) } },
+                { $unwind: '$files' },
+                { $match: { 'files.faces.userId': mongoose.Types.ObjectId(req.params.userId) } },
                 { $sort: { createdAt: -1 } },
             ]);
             res.json(posts);
@@ -101,6 +126,21 @@ module.exports = io => {
                     }
                 }
             ]);
+            const ids = [];
+            posts.forEach(post => {
+                post.files.forEach(file => {
+                    file.faces?.forEach(face => face.userId && ids.push(face.userId));
+                });
+            });
+            const users = await User.find({ _id: { $in: ids } });
+            posts.forEach(post => {
+                post.files.forEach(file => {
+                    file.faces?.forEach(face => {
+                        if (face.userId)
+                            face.user = users.find(u => u._id.equals(face.userId));
+                    });
+                });
+            });
             res.json(posts);
         })
         .get('/following', async (req, res) => {
@@ -132,7 +172,22 @@ module.exports = io => {
                         commentsCount: { $size: '$comments' }
                     }
                 }
-            ]).then(posts => {
+            ]).then(async posts => {
+                const ids = [];
+                posts.forEach(post => {
+                    post.files.forEach(file => {
+                        file.faces?.forEach(face => face.userId && ids.push(face.userId));
+                    });
+                });
+                const users = await User.find({ _id: { $in: ids } });
+                posts.forEach(post => {
+                    post.files.forEach(file => {
+                        file.faces?.forEach(face => {
+                            if (face.userId)
+                                face.user = users.find(u => u._id.equals(face.userId));
+                        });
+                    });
+                });
                 res.json(posts);
             }).catch(error => {
                 res.sendStatus(500);
@@ -153,27 +208,45 @@ module.exports = io => {
                         'commentsCount': { $size: '$comments' }
                     }
                 }
-            ]).then(result => {
-                res.json(result.length > 0 ? result[0] : null);
+            ]).then(async posts => {
+                if (posts.length === 0) {
+                    return res.json(null);
+                }
+                const post = posts[0];
+                const userId = [];
+                post.files.forEach(file => {
+                    file.faces?.forEach(face => face.userId && userId.push(face.userId));
+                });
+                const users = await User.find({ _id: { $in: userId } });
+                post.files.forEach(file => {
+                    file.faces?.forEach(face => {
+                        if (face.userId)
+                            face.user = users.find(u => u._id.equals(face.userId));
+                    });
+                });
+                res.json(post);
             }).catch(error => {
                 res.status(500);
             });
         })
         .post('/', (req, res) => {
             if (!req.user) {
-                res.status(401).json({ message: 'User is not logged in' });
+                return res.status(401).json({ message: 'User is not logged in' });
             }
             upload(req, res, async err => {
                 if (err) {
-                    res.status(400).json(err);
+                    return res.status(400).json(err);
                 }
                 try {
+                    const faces = JSON.parse(req.body.faces);
+                    console.log(faces.map(f => f))
                     const post = await Post.create({
                         userId: req.user,
                         text: req.body.text,
-                        files: req.files?.map(f => ({
+                        files: req.files?.map((f, i) => ({
                             url: f.secure_url,
-                            resourceType: f.resource_type
+                            resourceType: f.resource_type,
+                            faces: faces[i]
                         }))
                     });
                     res.json(post);
