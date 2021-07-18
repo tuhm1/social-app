@@ -67,7 +67,7 @@ app
     .post('/register', async (req, res) => {
         LocalUser.create(req.body)
             .then(user => {
-                req.login(user, err => {
+                req.login(user._id, err => {
                     if (err) return res.status(500).json(err);
                     res.json(user);
                 });
