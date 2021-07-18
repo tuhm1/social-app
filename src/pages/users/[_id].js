@@ -77,7 +77,12 @@ function Info({ user, followersCount, followed, postsCount, currentUserId }) {
                     <Button as='a' primary>Message</Button>
                 </Link>
             </div>
-            : <EditModal user={user} trigger={<Button icon='edit' content='Edit' />} />
+            : <div>
+                <EditModal user={user} trigger={<Button icon='edit' content='Edit' />} />
+                <Link href='/posts/create'>
+                    <Button as='a' primary icon='plus' content='Post' />
+                </Link>
+            </div>
         }
     </Segment>
 }
