@@ -11,7 +11,7 @@ export default function TopMenu({ children }) {
     const { data: currentUserId } = useQuery('/api/auth/me', () =>
         axios.get('/api/auth/me').then(res => res.data)
     );
-    const { data: isAdmin } = useQuery('/api/auth/me', () =>
+    const { data: isAdmin } = useQuery('/api/admin/isadmin', () =>
         axios.get('/api/admin/isadmin').then(res => res.data)
     );
     const { data: notiCount } = useQuery('/api/notifications/general/count', () =>
