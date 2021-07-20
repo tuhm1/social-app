@@ -105,8 +105,14 @@ module.exports = io => {
             res.json(posts);
         })
         .get('/home', async (req, res) => {
+            const { cursor, limit } = req.query;
             const posts = await Post.aggregate([
+                ...(cursor
+                    ? [{ $match: { _id: { $lt: mongoose.Types.ObjectId(cursor) } } }]
+                    : []
+                ),
                 { $sort: { createdAt: -1, _id: -1 } },
+                { $limit: limit || 10 },
                 { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'users' } },
                 { $lookup: { from: 'likes', localField: '_id', foreignField: 'postId', as: 'likes' } },
                 ...(req.user

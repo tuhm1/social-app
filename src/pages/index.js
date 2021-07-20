@@ -1,18 +1,26 @@
 import axios from 'axios';
-import React from 'react';
-import { Menu } from 'semantic-ui-react';
-import PostCard from '../components/posts/PostCard';
 import Link from 'next/link';
-import { useQuery } from 'react-query';
-import PostCreateModal from './posts/create';
+import React from 'react';
+import { useInfiniteQuery } from 'react-query';
+import { Loader, Menu } from 'semantic-ui-react';
+import PostCard from '../components/posts/PostCard';
+import ScrollDetector from '../components/ScrollDectector';
 
 export default function Home() {
-  const { data: posts } = useQuery('/api/posts/home', () =>
-    axios.get('/api/posts/home').then(res => res.data)
+  const { data, fetchNextPage, isFetching, hasNextPage } = useInfiniteQuery('/api/posts/home',
+    async ({ pageParam }) =>
+      axios.get('/api/posts/home', { params: { cursor: pageParam } })
+        .then(res => res.data),
+    { getNextPageParam: last => last[last.length - 1]?._id }
   );
   return <div style={{ maxWidth: '700px', margin: 'auto', padding: '1em', background: 'white', minHeight: '100%' }}>
     <PageMenu />
-    {posts?.map(p => <PostCard key={p._id} {...p} />)}
+    {data && data.pages
+      .reduce((posts, page) => [...posts, ...page], [])
+      .map(p => <PostCard key={p._id} {...p} />)
+    }
+    {!isFetching && hasNextPage && <ScrollDetector onScroll={() => fetchNextPage()} />}
+    {isFetching && <Loader inline='centered' active />}
   </div>
 }
 
