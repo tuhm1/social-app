@@ -25,6 +25,9 @@ export default function Conversation() {
                 <ButtonVideo peer={peer} socket={socket} />
                 <ButtonAudio peer={peer} socket={socket} />
                 <ButtonScreen peer={peer} socket={socket} />
+                <Link href={`/chat/members/${conversationId}`}>
+                    <Button as='a' icon='group' basic />
+                </Link>
             </div>
             <div className={css.container}>
                 {peer && <Tracks peer={peer} socket={socket} />}

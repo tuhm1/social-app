@@ -1,6 +1,7 @@
 module.exports = io => {
     const express = require('express');
     const mongoose = require('mongoose');
+    const { User } = require('../db/user');
     const Conversation = require('../db/conversation');
     const Message = require('../db/message');
     const Notification = require('../db/notification');
@@ -14,6 +15,38 @@ module.exports = io => {
         })
     }).array('files');
     app
+        .post('/delete-member', async (req, res) => {
+            if (!req.user) {
+                return res.status(403).json({ message: 'User is not logged in' });
+            }
+            const { conversationId, userId } = req.body;
+            console.log(req.body)
+            const conversation = await Conversation.findById(conversationId);
+            const currentUserId = mongoose.Types.ObjectId(req.user);
+            if (!currentUserId.equals(conversation.creatorId)) {
+                return res.status(403).json({ message: 'Unauthorized' });
+            }
+            console.log(conversation)
+            conversation.userIds = conversation.userIds.filter(id => !id.equals(mongoose.Types.ObjectId(userId)));
+            await conversation.save();
+            res.sendStatus(200);
+        })
+        .post('/add-member', async (req, res) => {
+            if (!req.user) {
+                return res.status(403).json({ message: 'User is not logged in' });
+            }
+            const { conversationId, userId } = req.body;
+            console.log(req.body)
+            const conversation = await Conversation.findById(conversationId);
+            const currentUserId = mongoose.Types.ObjectId(req.user);
+            if (!currentUserId.equals(conversation.creatorId)) {
+                return res.status(403).json({ message: 'Unauthorized' });
+            }
+            conversation.userIds = [...conversation.userIds, mongoose.Types.ObjectId(userId)];
+            console.log(conversation)
+            await conversation.save();
+            res.sendStatus(200);
+        })
         .get('/conversations', async (req, res) => {
             const pConversations = Conversation.aggregate([
                 { $match: { userIds: mongoose.Types.ObjectId(req.user) } },
@@ -105,6 +138,16 @@ module.exports = io => {
                     res.status(400).json(error);
                 }
             })
+        })
+        .get('/members/:conversationId', async (req, res) => {
+            if (!req.user) {
+                return res.status(403).json({ message: 'User is not logged in' });
+            }
+            const conversations = await Conversation.aggregate([
+                { $match: { _id: mongoose.Types.ObjectId(req.params.conversationId) } },
+                { $lookup: { from: 'users', localField: 'userIds', foreignField: '_id', as: 'users' } }
+            ]);
+            res.json({ ...conversations[0], currentUserId: req.user });
         })
 
     return app;
