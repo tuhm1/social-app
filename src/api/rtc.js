@@ -59,7 +59,7 @@ module.exports = io => {
                         if (peer.connectionState === 'disconnected') {
                             peers[conversationId].delete(peer);
                             peer.getTransceivers().forEach(tc => {
-                                if (tracks[conversationId].has(tc.receiver.track)) {
+                                if (tracks[conversationId]?.has(tc.receiver.track)) {
                                     tracks[conversationId].delete(tc.receiver.track);
                                     peers[conversationId].forEach(p => {
                                         p.getTransceivers().forEach((tc1, i) => {
