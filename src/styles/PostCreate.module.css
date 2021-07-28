@@ -30,3 +30,8 @@
         opacity: 0;
     }
 }
+
+.faceDetected:hover {
+    animation: none;
+    opacity: 1;
+}

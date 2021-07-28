@@ -41,7 +41,7 @@
 }
 
 .medias {
-  background: linear-gradient(45deg, teal, transparent);
+  background: lightgrey;
   position: relative;
   max-height: 80vh;
   overflow-x: auto;
