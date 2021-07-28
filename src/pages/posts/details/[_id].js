@@ -78,7 +78,7 @@ function Medias({ files }) {
                                     height: face.height * 100 + '%'
                                 }}>
                                     <Link href={`/users/${face.user._id}`}>
-                                        <Label as='a' size='mini' className={css.faceLabel} color='teal'>
+                                        <Label as='a' className={css.faceLabel} color='teal'>
                                             {`${face.user.firstName} ${face.user.lastName}`}
                                         </Label>
                                     </Link>
