@@ -2,7 +2,7 @@ import axios from 'axios';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import {
     Button,
@@ -66,28 +66,42 @@ function Medias({ files }) {
     return <div className={css.slides}>
         {files.map(file =>
             <div className={css.slide}>
-                <div className={css.overlayContainer}>
-                    {file.resourceType === 'image'
-                        ? <>
-                            <img src={file.url} className={css.media} />
-                            {file.faces?.map(face =>
-                                face.user && <div className={css.face} style={{
-                                    left: face.x * 100 + '%',
-                                    top: face.y * 100 + '%',
-                                    width: face.width * 100 + '%',
-                                    height: face.height * 100 + '%'
-                                }}>
-                                    <Link href={`/users/${face.user._id}`}>
-                                        <Label as='a' className={css.faceLabel} color='teal'>
-                                            {`${face.user.firstName} ${face.user.lastName}`}
-                                        </Label>
-                                    </Link>
-                                </div>
-                            )}
-                        </>
-                        : <video src={file.url} className={css.media} controls />
-                    }
-                </div>
+                {file.resourceType === 'image'
+                    ? <ImageWithTags {...file} />
+                    : <video src={file.url} className={css.media} controls />
+                }
+            </div>
+        )}
+    </div >
+}
+
+function ImageWithTags({ url, faces }) {
+    const [imageSize, setImageSize] = useState();
+    const getImageSize = useCallback(img => {
+        if (!img) return;
+        img.onload = () => {
+            setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
+        }
+    }, [url]);
+    const containerStyle = imageSize
+        ? imageSize.width > imageSize.height
+            ? { width: '100%', height: 'auto' }
+            : { height: '100%', width: 'auto' }
+        : {};
+    return <div className={css.overlayContainer} style={containerStyle}>
+        <img src={url} className={css.media} ref={getImageSize} />
+        {faces?.map(face =>
+            face.user && <div className={css.face} style={{
+                left: face.x * 100 + '%',
+                top: face.y * 100 + '%',
+                width: face.width * 100 + '%',
+                height: face.height * 100 + '%'
+            }}>
+                <Link href={`/users/${face.user._id}`}>
+                    <Label as='a' className={css.faceLabel} color='teal'>
+                        {`${face.user.firstName} ${face.user.lastName}`}
+                    </Label>
+                </Link>
             </div>
         )}
     </div>

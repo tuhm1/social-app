@@ -37,28 +37,12 @@ export default function PostCard({ _id, text, files, user, likesCount, liked, co
             && <div className={css.medias}>
                 {files.map(file =>
                     <div className={css.slide}>
-                        <div className={css.overlayContainer}>
-                            {file.resourceType === 'image'
-                                ? <>
-                                    <img src={file.url} className={css.media} />
-                                    {file.faces?.map(face =>
-                                        face.user && <div className={css.face} style={{
-                                            left: face.x * 100 + '%',
-                                            top: face.y * 100 + '%',
-                                            width: face.width * 100 + '%',
-                                            height: face.height * 100 + '%'
-                                        }}>
-                                            <Link href={`/users/${face.user._id}`}>
-                                                <Label as='a' size='mini' className={css.faceLabel} color='teal'>
-                                                    {`${face.user.firstName} ${face.user.lastName}`}
-                                                </Label>
-                                            </Link>
-                                        </div>
-                                    )}
-                                </>
-                                : <video src={file.url} className={css.media} controls />
-                            }
-                        </div>
+                        {file.resourceType === 'image'
+                            ? <ImageWithTags {...file} key={file.url} />
+                            : <video src={file.url} className={css.media} key={file.url}
+                                controls autoPlay muted loop
+                            />
+                        }
                     </div>
                 )}
             </div>
@@ -69,6 +53,39 @@ export default function PostCard({ _id, text, files, user, likesCount, liked, co
                 <Button icon='comment' content={commentsCount} basic />
             </Link>
         </div>
+    </div >
+}
+
+
+function ImageWithTags({ url, faces }) {
+    const [imageSize, setImageSize] = useState();
+    const getImageSize = useCallback(img => {
+        if (!img) return;
+        img.onload = () => {
+            setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
+        }
+    }, [url]);
+    const containerStyle = imageSize
+        ? imageSize.width > imageSize.height
+            ? { width: '100%', height: 'auto' }
+            : { height: '100%', width: 'auto' }
+        : {};
+    return <div className={css.overlayContainer} style={containerStyle}>
+        <img src={url} className={css.media} ref={getImageSize} />
+        {faces?.map(face =>
+            face.user && <div className={css.face} style={{
+                left: face.x * 100 + '%',
+                top: face.y * 100 + '%',
+                width: face.width * 100 + '%',
+                height: face.height * 100 + '%'
+            }}>
+                <Link href={`/users/${face.user._id}`}>
+                    <Label as='a' className={css.faceLabel} color='teal'>
+                        {`${face.user.firstName} ${face.user.lastName}`}
+                    </Label>
+                </Link>
+            </div>
+        )}
     </div>
 }
 
@@ -113,14 +130,4 @@ function LikeButton({ postId, likesCount, liked }) {
         basic
         loading={response.status === 'loading'}
     />
-}
-
-function useClientRect() {
-    const [rect, setRect] = useState(null);
-    const ref = useCallback(node => {
-        if (node !== null) {
-            setRect(node.getBoundingClientRect());
-        }
-    }, []);
-    return [rect, ref];
 }
