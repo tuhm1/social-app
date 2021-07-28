@@ -52,7 +52,7 @@ export default function PostCreateForm() {
                         width: box.width,
                         height: box.height,
                         userId: usersInImages[i][j]?._id,
-                        descriptor: face.descriptor
+                        descriptor: Array.from(face.descriptor)
                     }
                 })
                 : null
@@ -158,11 +158,28 @@ function ImageSelected({ file, faceApi, faces, onFaces, users, onUsers }) {
                     .withFaceLandmarks()
                     .withFaceDescriptors()
             )
-            .then(faces => {
-                onFaces(faces);
-                onUsers(faces.map(() => null));
+            .then(async detectedFaces => {
+                onFaces(detectedFaces);
+                const users = detectedFaces.map(() => null);
+                onUsers(users);
                 setDetecting(false);
-            })
+                const savedFaces = await axios.get('/api/faces').then(res => res.data);
+                savedFaces.forEach(face => {
+                    face.descriptorF32Arrs = face.descriptors.map(d => new Float32Array(d));
+                });
+                const labeledDescriptors = savedFaces.map(face =>
+                    new faceapi.LabeledFaceDescriptors(face.user._id, face.descriptorF32Arrs)
+                );
+                const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors);
+                detectedFaces.forEach((detectedFace, i) => {
+                    const match = faceMatcher.findBestMatch(detectedFace.descriptor);
+                    if (match.label !== 'unknown') {
+                        const matchFace = savedFaces.find(faceDb => faceDb.user._id === match.label);
+                        const newUsersState = users.map((_user, j) => i === j ? matchFace.user : _user);
+                        onUsers(newUsersState);
+                    }
+                });
+            });
     }, [file, faces, faceApi]);
     return <div className={css.file}>
         {detecting && <Dimmer active>

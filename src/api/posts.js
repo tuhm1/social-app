@@ -6,6 +6,7 @@ module.exports = io => {
     const Follow = require('../db/follow');
     const Post = require('../db/post');
     const { User } = require('../db/user');
+    const Face = require('../db/face');
     const ReportedPost = require('../db/reported_post');
     const multer = require('multer');
     const CloudinaryStorage = require('./helpers/MulterCloudinaryStorage');
@@ -244,17 +245,25 @@ module.exports = io => {
                     return res.status(400).json(err);
                 }
                 try {
-                    const faces = JSON.parse(req.body.faces);
-                    console.log(faces.map(f => f))
-                    const post = await Post.create({
+                    const facesInFiles = JSON.parse(req.body.faces);
+                    console.log(facesInFiles.map(f => f))
+                    const pPost = Post.create({
                         userId: req.user,
                         text: req.body.text,
                         files: req.files?.map((f, i) => ({
                             url: f.secure_url,
                             resourceType: f.resource_type,
-                            faces: faces[i]
+                            faces: facesInFiles[i]
                         }))
                     });
+                    const faces = [];
+                    facesInFiles.forEach(facesInFile => {
+                        facesInFile?.forEach(face => {
+                            face.userId && faces.push(face);
+                        });
+                    });
+                    const pFaces = Face.insertMany(faces);
+                    const [post] = await Promise.all([pPost, pFaces]);
                     res.json(post);
                 } catch (error) {
                     res.status(400).json(error);
