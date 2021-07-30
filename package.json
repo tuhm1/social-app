@@ -8,6 +8,11 @@
     "start": "cross-env NODE_ENV=production node -r dotenv/config src/index.js"
   },
   "dependencies": {
+    "@tensorflow-models/face-landmarks-detection": "0.0.3",
+    "@tensorflow/tfjs-backend-wasm": "^3.8.0",
+    "@tensorflow/tfjs-backend-webgl": "^3.8.0",
+    "@tensorflow/tfjs-converter": "^3.8.0",
+    "@tensorflow/tfjs-core": "^3.8.0",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
     "cloudinary": "^1.25.1",
@@ -38,6 +43,8 @@
     "semantic-ui-react": "^2.0.3",
     "socket.io": "^4.1.1",
     "socket.io-client": "^4.1.1",
+    "three": "^0.130.1",
+    "video-stream-merger": "^4.0.1",
     "wrtc": "^0.4.7"
   },
   "devDependencies": {

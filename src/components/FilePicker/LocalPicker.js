@@ -7,6 +7,7 @@ const LocalPicker = ({ onSelect, multiple, accept }) => {
                 as='span'
                 icon='folder'
                 type='button'
+                content='Browse'
             />
         </label>
         <input

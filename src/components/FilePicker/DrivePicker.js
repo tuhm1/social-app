@@ -19,6 +19,7 @@ export default function DrivePicker({ onSelect, multiple, accept }) {
             icon='google drive'
             type='button'
             onClick={onClick}
+            content='Drive'
         />
     </div>
 }

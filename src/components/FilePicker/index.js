@@ -1,6 +1,7 @@
 import { Button, List } from "semantic-ui-react";
 import LocalPicker from './LocalPicker';
 import DrivePicker from './DrivePicker';
+import { useRef, useEffect } from "react";
 
 export default function InputFile({ accept, multiple, value, onChange, image, video, audio }) {
     if (image || video || audio) {
@@ -24,6 +25,9 @@ export default function InputFile({ accept, multiple, value, onChange, image, vi
                 accept={accept}
                 multiple={multiple}
             />
+            {(video || accept.includes('video'))
+                && <ButtonFaceFilter onResult={file => onSelect([file])} />
+            }
         </div>
         <List
             divided
@@ -81,4 +85,24 @@ function withAcceptShorthands(accept, image, video, audio) {
         ]);
     accept = accept.join(',');
     return accept;
+}
+
+function ButtonFaceFilter({ onResult }) {
+    const ref = useRef(null);
+    useEffect(() => {
+        return () => ref.current?.close();
+    }, []);
+    const onClick = () => {
+        const faceFilter = window.open('/face-filter');
+        window.addEventListener('message', e => {
+            if (e.source === faceFilter) {
+                ref.current = null;
+                onResult(e.data);
+            }
+        });
+        ref.current = faceFilter;
+    };
+    return <Button type='button' onClick={onClick}>
+        Face AR
+    </Button>
 }

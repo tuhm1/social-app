@@ -2,7 +2,7 @@ import axios from "axios";
 import * as faceapi from 'face-api.js';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { Button, Dimmer, Form, Icon, Image, Input, Label, List, Loader, Menu, Modal } from "semantic-ui-react";
 import InputFile from "../../components/FilePicker";
@@ -16,6 +16,7 @@ export default function PostCreateForm() {
     const [facesInImages, setFacesInImages] = useState();
     const [usersInImages, setUsersInImages] = useState();
     const [response, setResponse] = useState({ status: 'idle' });
+    const [faceFilter, setFaceFilter] = useState(false);
     useEffect(() => {
         Promise.all([
             faceapi.loadSsdMobilenetv1Model('/face-api/models'),
@@ -137,7 +138,7 @@ function VideoSelected({ file }) {
         return () => URL.revokeObjectURL(url);
     }, [file]);
     if (!previewUrl) return null;
-    return <video src={previewUrl} className={css.preview} controls />
+    return <video src={previewUrl} className={css.preview} autoPlay muted loop controls />
 }
 
 function ImageSelected({ file, faceApi, faces, onFaces, users, onUsers }) {

@@ -68,7 +68,7 @@ function Medias({ files }) {
             <div className={css.slide}>
                 {file.resourceType === 'image'
                     ? <ImageWithTags {...file} />
-                    : <video src={file.url} className={css.media} controls />
+                    : <video src={file.url} className={css.media} autoPlay controls />
                 }
             </div>
         )}
